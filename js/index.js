@@ -1,7 +1,7 @@
-var globals = null;
-var globals2 = null;
+var global_full_news_data = null;
+var global_single_news_data = null;
 var global_click_count = 0;
-var check = 1;
+// var check = 1;
 var words_to_check = ["sanjay", "smriti", "jaitley", "budget"];
 // var words_to_check = ["estate", "property", "house", "flat"];
 
@@ -93,8 +93,8 @@ function requestCrossDomain(site) {
         url: yql
     }).done(function(data) {
 
-        globals = data;
-        json_traverse(globals.query.results.body);
+        global_full_news_data = data;
+        json_traverse(global_full_news_data.query.results.body);
         var count = 0;
         for (var key in link_array) {
             var temp = JSON.stringify(link_array[key]);
@@ -103,26 +103,26 @@ function requestCrossDomain(site) {
             if (check_for_words(temp2)) {
                 // var div = document.createElement("div");
                 // var a = document.createElement("a");
-                var _newsPageLink;
+                var _singleNewsPageLink;
                 // xxx = traverse_for_href(link_array[key]);
                 if ($.isArray(link_array[key].a)) {
                     // console.log("array");
-                    _newsPageLink = link_array[key].a[0].href;
+                    _singleNewsPageLink = link_array[key].a[0].href;
                 } else {
                     // console.log("not an array");
-                    _newsPageLink = link_array[key].a.href;
+                    _singleNewsPageLink = link_array[key].a.href;
                 }
-                // var _newsPageLink = xxx;
-                if (_newsPageLink != undefined) {
+                // var _singleNewsPageLink = xxx;
+                if (_singleNewsPageLink != undefined) {
 
-                    if ((_newsPageLink.indexOf("http:") != -1) || (_newsPageLink.indexOf("https:") != -1)) {
+                    if ((_singleNewsPageLink.indexOf("http:") != -1) || (_singleNewsPageLink.indexOf("https:") != -1)) {
 
                     } else {
-                        console.log(_newsPageLink);
-                        _newsPageLink = _site + _newsPageLink;
-                        console.log(_newsPageLink);
+                        console.log(_singleNewsPageLink);
+                        _singleNewsPageLink = _site + _singleNewsPageLink;
+                        console.log(_singleNewsPageLink);
                     }
-                    // a.setAttribute("href", _newsPageLink);
+                    // a.setAttribute("href", _singleNewsPageLink);
 
                     var get_title = traverse_for_title(link_array[key].a);
                     // console.log(get_content);
@@ -141,7 +141,7 @@ function requestCrossDomain(site) {
                         //     div.setAttribute("class", "feeds hide");
                         // }
                         // console.log(link_array[key]);
-                        crawl_single_news_page(_newsPageLink);
+                        crawl_single_news_page(_singleNewsPageLink);
                         // $("#feed").append(div);
                     }
                 }
@@ -242,11 +242,11 @@ function crawl_single_news_page(site) {
         }
     }
 
-    function make_div(title, desc, image_href, news_href, news_feed_time) {
+    function make_div(title, description_of_news, image_href, news_href, news_feed_time) {
 
-        console.log(desc);
-        if (((desc == "")) || (desc == undefined)) {
-            desc = title;
+        console.log(description_of_news);
+        if (((description_of_news == "")) || (description_of_news == undefined)) {
+            description_of_news = title;
         }
         var main_div = document.createElement("div");
         main_div.setAttribute("class", "news_feed_div");
@@ -260,19 +260,18 @@ function crawl_single_news_page(site) {
         anchor.appendChild(text);
         title_div.appendChild(anchor);
 
-        var desc_div = document.createElement("div");
-        desc_div.setAttribute("class", "news_feed_desc_div");
-        var desc_span = document.createElement("span");
-        desc_span.setAttribute("class", "description_span");
-        var text = document.createTextNode(desc);
-        desc_span.appendChild(text);
-        desc_div.appendChild(desc_span);
+        var description_div = document.createElement("div");
+        description_div.setAttribute("class", "news_feed_description_div");
+        var description_span = document.createElement("span");
+        description_span.setAttribute("class", "description_span");
+        var text = document.createTextNode(description_of_news);
+        description_span.appendChild(text);
+        description_div.appendChild(description_span);
 
         var image_div = document.createElement("div");
         image_div.setAttribute("class", "news_feed_image_div");
         var image = document.createElement("img");
         image.setAttribute("src", image_href);
-
 
         var time_div = document.createElement("div");
         time_div.setAttribute("class", "news_feed_time_div");
@@ -281,11 +280,9 @@ function crawl_single_news_page(site) {
         time_span.appendChild(text);
         time_div.appendChild(time_span);
 
-
-
         // div.appendChild(image);
         main_div.appendChild(title_div);
-        main_div.appendChild(desc_div);
+        main_div.appendChild(description_div);
         main_div.appendChild(time_div);
 
         return main_div;
@@ -295,19 +292,19 @@ function crawl_single_news_page(site) {
         url: yql2
     }).done(function(data) {
 
-        globals2 = data;
+        global_single_news_data = data;
         var set_news_href = _site;
         console.log(_site);
-        var set_title = globals2.query.results.title;
+        var set_title = global_single_news_data.query.results.title;
 
-        for (var key in globals2.query.results) {
+        for (var key in global_single_news_data.query.results) {
             if (key == "link") {
-                make_array_link(globals2.query.results[key]);
+                make_array_link(global_single_news_data.query.results[key]);
             }
         }
-        for (var key in globals2.query.results) {
+        for (var key in global_single_news_data.query.results) {
             if (key == "meta") {
-                make_array_meta(globals2.query.results[key]);
+                make_array_meta(global_single_news_data.query.results[key]);
             }
         }
 
