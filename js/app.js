@@ -181,15 +181,6 @@
             }
         }
 
-        var check_for_words = function(x) {
-            for (var key in words_to_check) {
-                if (x.indexOf(words_to_check[key]) != -1) {
-                    return 1;
-                }
-            }
-            return 0;
-        };
-
         var have_rssLink = function(data) {
 
             // var type = typeof data;
@@ -275,7 +266,7 @@
 
             }
         };
-        
+
         var crawl_single_news_page_function = function(_site, data) {
             var feed_id_instance = document.getElementById(feedId);
 
@@ -308,18 +299,21 @@
 
         var crawl_rss_feed_link_function = function(_site, data) {
             console.log(data);
-            console.log(data.query.results.item.length);
+            // console.log(data.query.results.item.length);
             var feed_id_instance = document.getElementById(feedId);
             for (var i = 0; i < data.query.results.item.length; i++) {
+                var temp = data.query.results.item[i].title.toLowerCase();
+                if (check_for_words(temp)) {
+                    console.log(temp);
+                    var set_title = data.query.results.item[i].title;
+                    var set_description = data.query.results.item[i].description;
+                    var set_image_href = "";
+                    var set_news_href = data.query.results.item[i].link;
+                    var news_feed_time = data.query.results.item[i].pubDate;
 
+                    $(feed_id_instance).append(make_div(set_title, set_description, set_image_href, set_news_href, news_feed_time));
+                }
 
-                var set_title = data.query.results.item[i].title;
-                var set_description = data.query.results.item[i].description;
-                var set_image_href = "";
-                var set_news_href = data.query.results.item[i].link;
-                var news_feed_time = data.query.results.item[i].pubDate;
-
-                $(feed_id_instance).append(make_div(set_title, set_description, set_image_href, set_news_href, news_feed_time));
 
             }
         };
