@@ -221,7 +221,7 @@
             }
         };
 
-        var requestCrossDomain_function = function(_site, data) {
+        var crawl_mainPage_function = function(_site, data) {
             var global_full_news_data = data;
             is_rss_link = 0;
             var temp_rss_link = have_rssLink(global_full_news_data.query.results.body)
@@ -347,7 +347,7 @@
                 url: yql
             }).done(function(data) {
                 if (main_link_page == 1) {
-                    requestCrossDomain_function(_site, data);
+                    crawl_mainPage_function(_site, data);
 
                 } else if (main_link_page == 2) {
                     crawl_rss_feed_link_function(_site, data);
