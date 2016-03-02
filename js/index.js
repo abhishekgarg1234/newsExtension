@@ -1,9 +1,12 @@
 var global_full_news_data = null;
 var global_single_news_data = null;
 var global_click_count = 0;
-// var check = 1;
 var words_to_check = ["sanjay", "smriti", "jaitley", "budget"];
-// var words_to_check = ["estate", "property", "house", "flat"];
+
+var head_links_array = [];
+var head_metaTags_array = [];
+var link_array = [];
+var is_rss_link = 0;
 
 var setLocalStorageItems = function() {
     if (typeof(Storage) !== "undefined") {
@@ -13,9 +16,9 @@ var setLocalStorageItems = function() {
     } else {}
 };
 
-var head_data = function() {
+var head_display = function() {
     var div = document.createElement("div");
-    div.setAttribute("class", "head_data");
+    div.setAttribute("class", "head_display");
 
     var span = document.createElement("span");
     span.setAttribute("class", "head_span");
@@ -26,347 +29,301 @@ var head_data = function() {
     return div;
 };
 
-function requestCrossDomain(site) {
-    var link_array = [];
-    var _site = site;
-    if (!site) {
-        alert('No site was passed.');
-        return false;
+var make_head_links_array = function(o) {
+    for (var key in o) {
+        head_links_array.push(o[key]);
     }
-    var yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from html where url="' + _site + '"') + '&format=json';
+};
 
-    function json_traverse(o) {
-        var type = typeof o;
-        if (type == "object") {
-            for (var key in o) {
-                var t = key.toLowerCase();
-                if (t == "a") {
-                    link_array.push(o);
+var make_head_meatTags_array = function(o) {
+    for (var key in o) {
+        head_metaTags_array.push(o[key]);
+    }
+};
+
+var check_for_words = function(x) {
+    console.log(x);
+    x = x.toLowerCase(x);
+    for (var key in words_to_check) {
+        if (x.indexOf(words_to_check[key]) != -1) {
+            return 1;
+        }
+    }
+    return 0;
+};
+
+var find_desc = function() {
+    for (var key in head_metaTags_array) {
+        var temp = head_metaTags_array[key];
+        if (temp.hasOwnProperty("name")) {
+            var temp_name = temp.name.toLowerCase();
+            if (temp_name == "description") {
+                return temp.content;
+            }
+        }
+    }
+};
+
+var find_image_href = function() {
+    for (var key in head_links_array) {
+        var temp = head_links_array[key];
+    }
+};
+
+var find_news_feed_time = function() {
+    for (var key in head_metaTags_array) {
+
+        var temp = head_metaTags_array[key];
+        if (temp.hasOwnProperty("name")) {
+
+            var temp_text = temp.name.toLowerCase();
+            console.log(temp_text);
+            if ((temp_text.indexOf("time") != -1) || (temp_text.indexOf("update") != -1) || (temp_text.indexOf("modified") != -1)) {
+
+                return temp.content;
+            }
+        }
+    }
+};
+
+var find_news_feed_time2 = function() {
+    for (var key in head_metaTags_array) {
+
+        var temp = head_metaTags_array[key];
+
+        for (var key2 in temp) {
+            var tt = temp[key2].toLowerCase();
+            if (((tt.indexOf("time") != -1) && ((tt.indexOf("publish") != -1))) || ((tt.indexOf("update") != -1) && (tt.indexOf("time") != -1)) || ((tt.indexOf("modified") != -1))) {
+                if (tt.indexOf("times") != -1) {
+
+                } else {
+                    return temp.content;
                 }
-                json_traverse(o[key]);
             }
-        } else {
-            var tt = JSON.stringify(o);
+        }
+    }
+};
+
+var make_div = function(title, description_of_news, image_href, news_href, news_feed_time) {
+
+    if (((description_of_news == "")) || (description_of_news == undefined)) {
+        description_of_news = title;
+    }
+    var main_div = document.createElement("div");
+    main_div.setAttribute("class", "news_feed_div");
+
+    var title_div = document.createElement("div");
+    title_div.setAttribute("class", "news_feed_title_div");
+    var anchor = document.createElement("a");
+    anchor.setAttribute("href", news_href);
+    anchor.setAttribute("class", "news_feed_anchor_tag");
+    var text = document.createTextNode(title);
+    anchor.appendChild(text);
+    title_div.appendChild(anchor);
+
+    var description_div = document.createElement("div");
+    description_div.setAttribute("class", "news_feed_description_div");
+    var description_span = document.createElement("span");
+    description_span.setAttribute("class", "description_span");
+    var text = document.createTextNode(description_of_news);
+    description_span.appendChild(text);
+    description_div.appendChild(description_span);
+
+    var image_div = document.createElement("div");
+    image_div.setAttribute("class", "news_feed_image_div");
+    var image = document.createElement("img");
+    image.setAttribute("src", image_href);
+
+    var time_div = document.createElement("div");
+    time_div.setAttribute("class", "news_feed_time_div");
+    var time_span = document.createElement("span");
+    var text = document.createTextNode(news_feed_time);
+    time_span.appendChild(text);
+    time_div.appendChild(time_span);
+
+    // div.appendChild(image);
+    main_div.appendChild(title_div);
+    main_div.appendChild(description_div);
+    main_div.appendChild(time_div);
+
+    return main_div;
+};
+
+var crawl_single_news_page_function = function(_site, data) {
+
+    global_single_news_data = data;
+    var set_news_href = _site;
+    // console.log(_site);
+    var set_title = global_single_news_data.query.results.title;
+
+    for (var key in global_single_news_data.query.results) {
+        if (key == "link") {
+            make_head_links_array(global_single_news_data.query.results[key]);
+        }
+    }
+    for (var key in global_single_news_data.query.results) {
+        if (key == "meta") {
+            make_head_meatTags_array(global_single_news_data.query.results[key]);
         }
     }
 
-    function traverse_for_title(o) {
-        var type = typeof o;
+    var set_desc = find_desc();
+    var set_image_href = find_image_href();
+
+    var news_feed_time = find_news_feed_time2();
+    // console.log(set_title);
+    var dd = check_for_words(set_title);
+    // console.log(dd);
+    if (dd) {
+        $("#feed").append(make_div(set_title, set_desc, set_image_href, set_news_href, news_feed_time));
+    }
+};
+
+var json_traverse = function(o) {
+    var type = typeof o;
+    if (type == "object") {
+        for (var key in o) {
+            var t = key.toLowerCase();
+            if (t == "a") {
+                link_array.push(o);
+            }
+            json_traverse(o[key]);
+        }
+    } else {
+        var tt = JSON.stringify(o);
+    }
+};
+
+var traversing_function = function(o, key_to_traverse) {
+    var type = typeof o;
+    if (type == "object") {
+        for (var key in o) {
+            var t = key.toLowerCase();
+            if ((t == key_to_traverse)) {
+                return o[key];
+            }
+            traversing_function(o[key], key_to_traverse);
+        }
+    } else {
+        var tt = JSON.stringify(o);
+    }
+}
+
+var check_for_words = function(x) {
+    for (var key in words_to_check) {
+        if (x.indexOf(words_to_check[key]) != -1) {
+            return 1;
+        }
+    }
+    return 0;
+};
+
+var have_rssLink = function(data) {
+    if ((is_rss_link == 0)) {
+        var type = typeof data;
+        var body_data = data;
         if (type == "object") {
-            for (var key in o) {
-                var t = key.toLowerCase()
-                if (t == "title") {
-                    return o[key];
+            for (var key in body_data) {
+                var temp_key = key.toLowerCase();
+                if (temp_key == "href") {
+                    var temp_link = body_data[key];
+                    if ((temp_link.indexOf("rss.cms") != -1) || (temp_link.indexOf("=rss") != -1)) {
+                        console.log(body_data[key]);
+                        is_rss_link = 1;
+                        console.log(body_data[key]);
+                        xx=body_data[key];
+                        break;
+                        // return body_data[key];
+                    }
                 }
-                traverse_for_title(o[key]);
+                have_rssLink(body_data[key]);
             }
-        } else {
-            var tt = JSON.stringify(o);
-        }
+        } else {}
     }
+};
 
-    function traverse_for_href(o) {
-        var type = typeof o;
-        if (type == "object") {
-            for (var key in o) {
-                var t = key.toLowerCase();
-                if ((t == "href")) {
-                    return o[key];
-                }
-                traverse_for_href(o[key]);
-            }
-        } else {
-            var tt = JSON.stringify(o);
-        }
-    }
-
-    var check_for_words = function(x) {
-        for (var key in words_to_check) {
-            if (x.indexOf(words_to_check[key]) != -1) {
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    $.ajax({
-        url: yql
-    }).done(function(data) {
-
-        global_full_news_data = data;
+var requestCrossDomain_function = function(_site, data) {
+    global_full_news_data = data;
+    is_rss_link = 0;
+    var temp_rss_link = have_rssLink(global_full_news_data.query.results.body)
+    // if (is_rss_link == 1) {
+    //     console.log("rss traverse");
+    //     console.log(temp_rss_link);
+    //     crawl_function(1, temp_rss_link);
+    // } else {
         json_traverse(global_full_news_data.query.results.body);
         var count = 0;
         for (var key in link_array) {
             var temp = JSON.stringify(link_array[key]);
             var temp2 = temp.toLowerCase();
-
             if (check_for_words(temp2)) {
-                // var div = document.createElement("div");
-                // var a = document.createElement("a");
                 var _singleNewsPageLink;
-                // xxx = traverse_for_href(link_array[key]);
                 if ($.isArray(link_array[key].a)) {
-                    // console.log("array");
                     _singleNewsPageLink = link_array[key].a[0].href;
                 } else {
-                    // console.log("not an array");
                     _singleNewsPageLink = link_array[key].a.href;
                 }
-                // var _singleNewsPageLink = xxx;
                 if (_singleNewsPageLink != undefined) {
 
                     if ((_singleNewsPageLink.indexOf("http:") != -1) || (_singleNewsPageLink.indexOf("https:") != -1)) {
 
                     } else {
-                        console.log(_singleNewsPageLink);
+                        // console.log(_singleNewsPageLink);
                         _singleNewsPageLink = _site + _singleNewsPageLink;
-                        console.log(_singleNewsPageLink);
+                        // console.log(_singleNewsPageLink);
                     }
-                    // a.setAttribute("href", _singleNewsPageLink);
-
-                    var get_title = traverse_for_title(link_array[key].a);
-                    // console.log(get_content);
-                    // var text = document.createTextNode(get_title);
-                    // a.appendChild(text);
-                    // div.appendChild(a);
-
-                    // if (link_array[key].a.content != undefined) {
+                    var get_title = traversing_function(link_array[key].a, "title");
                     if (get_title != undefined) {
-                        // if (check == 1) {
-                        //     // console.log(check);
-                        //     div.setAttribute("class", "feeds show");
-                        //     check = 2;
-                        // } else {
-                        //     // console.log(check);
-                        //     div.setAttribute("class", "feeds hide");
-                        // }
-                        // console.log(link_array[key]);
-                        crawl_single_news_page(_singleNewsPageLink);
-                        // $("#feed").append(div);
+                        crawl_function(0, _singleNewsPageLink);
                     }
                 }
-            }
+            // }
         }
-    }).fail(function(err) {
-        console.log(err)
-    });
-}
 
-function crawl_single_news_page(site) {
-    var head_array_link = [];
-    var head_array_meta = [];
+    }
+};
 
+var crawl_function = function(main_link_page, site) {
     var _site = site;
-    // console.log(_site);
-    if (!_site) {
+    if (!site) {
         alert('No site was passed.');
         return false;
     }
-    var yql2 = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from html where url="' + _site + '"  and xpath="/html/head/*"  ') + '&format=json';
-    // console.log(yql2);
+    if (main_link_page == 1) {
+        link_array = [];
+        var yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from html where url="' + _site + '"') + '&format=json';
+        ajax_call_function(yql, 1, _site);
+    } else {
+        head_links_array = [];
+        head_metaTags_array = [];
+        var yql2 = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from html where url="' + _site + '"  and xpath="/html/head/*"  ') + '&format=json';
+        ajax_call_function(yql2, 0, _site);
 
-    function make_array_link(o) {
-        for (var key in o) {
-            head_array_link.push(o[key]);
-        }
     }
+}
 
-    function make_array_meta(o) {
-        for (var key in o) {
-            head_array_meta.push(o[key]);
-        }
-    };
-
-    var check_for_words = function(x) {
-        console.log(x);
-        x = x.toLowerCase(x);
-        for (var key in words_to_check) {
-            if (x.indexOf(words_to_check[key]) != -1) {
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    function find_desc() {
-        for (var key in head_array_meta) {
-            var temp = head_array_meta[key];
-            if (temp.hasOwnProperty("name")) {
-                var temp_name = temp.name.toLowerCase();
-                // console.log(temp_name)
-                if (temp_name == "description") {
-                    // console.log(temp.content);
-                    return temp.content;
-                }
-            }
-        }
-    };
-
-    function find_image_href() {
-        for (var key in head_array_link) {
-            var temp = head_array_link[key];
-        }
-    }
-
-    function find_news_feed_time() {
-        for (var key in head_array_meta) {
-
-            var temp = head_array_meta[key];
-            if (temp.hasOwnProperty("name")) {
-
-                var temp_text = temp.name.toLowerCase();
-                console.log(temp_text);
-                if ((temp_text.indexOf("time") != -1) || (temp_text.indexOf("update") != -1) || (temp_text.indexOf("modified") != -1)) {
-
-                    return temp.content;
-                }
-            }
-        }
-    }
-
-    function find_news_feed_time2() {
-        for (var key in head_array_meta) {
-
-            var temp = head_array_meta[key];
-
-            for (var key2 in temp) {
-                var tt = temp[key2].toLowerCase();
-                if (((tt.indexOf("time") != -1) && ((tt.indexOf("publish") != -1))) || ((tt.indexOf("update") != -1) && (tt.indexOf("time") != -1)) || ((tt.indexOf("modified") != -1))) {
-                    if (tt.indexOf("times") != -1) {
-
-                    } else {
-                        return temp.content;
-                    }
-                }
-            }
-        }
-    }
-
-    function make_div(title, description_of_news, image_href, news_href, news_feed_time) {
-
-        console.log(description_of_news);
-        if (((description_of_news == "")) || (description_of_news == undefined)) {
-            description_of_news = title;
-        }
-        var main_div = document.createElement("div");
-        main_div.setAttribute("class", "news_feed_div");
-
-        var title_div = document.createElement("div");
-        title_div.setAttribute("class", "news_feed_title_div");
-        var anchor = document.createElement("a");
-        anchor.setAttribute("href", news_href);
-        anchor.setAttribute("class", "news_feed_anchor_tag");
-        var text = document.createTextNode(title);
-        anchor.appendChild(text);
-        title_div.appendChild(anchor);
-
-        var description_div = document.createElement("div");
-        description_div.setAttribute("class", "news_feed_description_div");
-        var description_span = document.createElement("span");
-        description_span.setAttribute("class", "description_span");
-        var text = document.createTextNode(description_of_news);
-        description_span.appendChild(text);
-        description_div.appendChild(description_span);
-
-        var image_div = document.createElement("div");
-        image_div.setAttribute("class", "news_feed_image_div");
-        var image = document.createElement("img");
-        image.setAttribute("src", image_href);
-
-        var time_div = document.createElement("div");
-        time_div.setAttribute("class", "news_feed_time_div");
-        var time_span = document.createElement("span");
-        var text = document.createTextNode(news_feed_time);
-        time_span.appendChild(text);
-        time_div.appendChild(time_span);
-
-        // div.appendChild(image);
-        main_div.appendChild(title_div);
-        main_div.appendChild(description_div);
-        main_div.appendChild(time_div);
-
-        return main_div;
-    };
-
+var ajax_call_function = function(yql, main_link_page, _site) {
     $.ajax({
-        url: yql2
+        url: yql
     }).done(function(data) {
+        if (main_link_page == 1) {
+            requestCrossDomain_function(_site, data);
 
-        global_single_news_data = data;
-        var set_news_href = _site;
-        console.log(_site);
-        var set_title = global_single_news_data.query.results.title;
-
-        for (var key in global_single_news_data.query.results) {
-            if (key == "link") {
-                make_array_link(global_single_news_data.query.results[key]);
-            }
-        }
-        for (var key in global_single_news_data.query.results) {
-            if (key == "meta") {
-                make_array_meta(global_single_news_data.query.results[key]);
-            }
+        } else {
+            crawl_single_news_page_function(_site, data);
         }
 
-        var set_desc = find_desc();
-        var set_image_href = find_image_href();
-
-        var news_feed_time = find_news_feed_time2();
-
-        var dd = check_for_words(set_title);
-        console.log(dd);
-        if (dd) {
-            $("#feed").append(make_div(set_title, set_desc, set_image_href, set_news_href, news_feed_time));
-        }
     }).fail(function(err) {
         console.log(err)
     });
 }
 
 $(document).ready(function() {
-    // $("#cl1").on("click", function() {
-    //     global_click_count--;
-    //     if (global_click_count < 0) {
-    //         global_click_count = 0;
-    //     }
-    //     var tt = $("#feed").children();
-    //     var temp = 0;
-    //     for (var key in tt) {
-    //         if (temp == global_click_count) {
-    //             $(tt[global_click_count]).attr("class", "feeds show");
-    //             $(tt[temp]).show();
-    //         } else {
-    //             $(tt[global_click_count]).attr("class", "feeds hide");
-    //             $(tt[temp]).hide();
-    //         }
-    //         temp++;
-    //     }
-
-    // });
-    // $("#cl2").on("click", function() {
-    //     global_click_count++;
-    //     var tt = $("#feed").children();
-
-    //     var temp = 0;
-    //     for (var key in tt) {
-
-    //         if (temp == global_click_count) {
-    //             $(tt[global_click_count]).attr("class", "feeds show");
-    //             $(tt[temp]).show();
-    //         } else {
-    //             $(tt[global_click_count]).attr("class", "feeds hide");
-    //             $(tt[temp]).hide();
-    //         }
-    //         temp++;
-    //     }
-    // });
-
-    $("#head_data").append(head_data());
+    $("#head_display").append(head_display());
     setLocalStorageItems();
     var x = JSON.parse(localStorage.getItem("news"));
     var c = x.count;
     for (var i = 0; i < c; i++) {
-        requestCrossDomain(x.data[i]);
-        // crawl_single_news_page(x.data[i]);
+        crawl_function(1, x.data[i]);
     }
 });

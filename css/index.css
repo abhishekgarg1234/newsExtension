@@ -26,7 +26,7 @@
     float: right;
 }
 
-.head_data {
+.head_display {
     width: 300px;
     height: 30px;
     color: black;
@@ -50,7 +50,7 @@
     color: blue;
 }
 
-.news_feed_desc_div {
+.news_feed_description_div {
     max-height: 54px;
     overflow: hidden;
 }
