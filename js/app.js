@@ -10,7 +10,7 @@
             feedId = set_feedId;
         };
 
-        var words_to_check = ["sanjay", "smriti", "jaitley", "budget", "found"];
+        var words_to_check = ["sanjay", "smriti", "jaitley", "budget", "found", "cbse", "intern", "mock","apple", "police"];
         var head_links_array = [];
         var head_metaTags_array = [];
         var anchorTags_array = [];
@@ -21,6 +21,8 @@
         var final_newsHref_array = [];
         var final_time_array = [];
         var is_rss_link = 0;
+        var prev_date = null;
+        var number_of_news = 0;
 
 
         var promise_array = [];
@@ -80,6 +82,27 @@
 
         var find_image_href = function() {};
 
+
+        var find_image_href_from_description = function(str) {
+            var _str = str;
+
+            if (_str.indexOf('src=') != -1) {
+                var index = _str.indexOf("src=");
+                index = index + 5;
+                var str2 = _str.substr(index);
+                index = str2.indexOf("\"");
+                return str2.substr(0, index);
+            } else {
+                return "image/images2.jpg";
+            }
+        };
+
+        var change_desc_remove_imgTags = function(str) {
+            str.replace(/<(?:.|\n)*?>/gm, '');
+            return str;
+
+        };
+
         var find_news_feed_time = function() {
             for (var key in head_metaTags_array) {
 
@@ -117,8 +140,8 @@
         var make_div = function(title, description_of_news, image_href, news_href, news_feed_time) {
 
             // console.log(description_of_news);
-            if (((description_of_news == "")) || (description_of_news == undefined)) {
-                description_of_news = title;
+            if ((description_of_news == "none")) {
+                description_of_news = "";
             }
             var main_div = document.createElement("div");
             main_div.setAttribute("class", "news_feed_div");
@@ -144,11 +167,12 @@
             // var text = document.createTextNode(description_of_news);
             // description_span.appendChild(text);
             // description_div.appendChild(description_span);
-
-            var description_div = document.createElement("div");
-            description_div.setAttribute("class", "news_feed_description_div");
-            description_div.innerHTML = description_of_news;
-
+            // var t = find_image_href_from_description(description_of_news);
+            // console.log(t);
+            // var description_div = document.createElement("div");
+            // description_div.setAttribute("class", "news_feed_description_div");
+            // description_div.innerHTML = description_of_news;
+            // console.log(description_of_news);
 
 
             var left_div = document.createElement("div");
@@ -159,12 +183,39 @@
             var image = document.createElement("img");
 
             // image.setAttribute("src", image_href);
-            image.setAttribute("src", "image/images2.jpg");
+            // image.setAttribute("src", "image/images2.jpg");
+
+
+            if (image_href == "image/images2.jpg") {
+                console.log("aaaaaa");
+                var image_from_description = find_image_href_from_description(description_of_news);
+                image.setAttribute("src", image_from_description);
+
+
+                var html2 = /(<([^>]+)>)/gi;
+                description_of_news = description_of_news.replace(html2, '');
+                console.log(description_of_news);
+                // change_desc_remove_imgTags(description_of_news);
+            } else {
+                image.setAttribute("src", image_href);
+            }
+
+
             image.setAttribute("alt", "Image not available");
             image.setAttribute("style", "width:90px;height:90px;");
             image_div.appendChild(image);
 
             left_div.appendChild(image_div);
+
+
+
+
+            var t = find_image_href_from_description(description_of_news);
+            console.log(t);
+            var description_div = document.createElement("div");
+            description_div.setAttribute("class", "news_feed_description_div");
+            description_div.innerHTML = description_of_news;
+            console.log(description_of_news);
 
 
 
@@ -392,11 +443,40 @@
 
         var push_news_data = function(set_title, set_description, set_image_href, set_news_href, news_feed_time) {
             console.log("pushed data");
-            final_titles_array.push(set_title);
-            final_description_array.push(set_description);
-            final_imageHref_array.push(set_image_href);
-            final_newsHref_array.push(set_news_href);
-            final_time_array.push(news_feed_time);
+            if ((set_title != null) && (set_title != undefined) && (set_title != "")) {
+                final_titles_array.push(set_title);
+            } else {
+                return;
+            }
+            if ((set_news_href != null) && (set_news_href != undefined) && (set_news_href != "")) {
+                final_newsHref_array.push(set_news_href);
+            } else {
+                return;
+            }
+            if ((set_description != null) && (set_description != undefined) && (set_description != "")) {
+                final_description_array.push(set_description);
+            } else {
+                final_description_array.push("none");
+            }
+            if ((set_image_href != null) && (set_image_href != undefined) && (set_image_href != "")) {
+                final_imageHref_array.push(set_image_href);
+            } else {
+                final_imageHref_array.push("image/images2.jpg");
+            }
+
+            if ((news_feed_time != null) && (news_feed_time != undefined) && (news_feed_time != "")) {
+                final_time_array.push(news_feed_time);
+            } else {
+                if (prev_date != null) {
+                    final_time_array.push(prev_date);
+                } else {
+                    final_time_array.push("Mon Mar 07 2016 11:10:57 GMT+0530 (IST)");
+                }
+
+            }
+
+            prev_date = news_feed_time;
+            number_of_news++;
         }
 
         var render_function = function() {
@@ -473,7 +553,7 @@
                 var yql = prepare_link(_site, format);
                 // console.log("returned: " + yql);
                 // var yql = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from html where url="' + _site + '"  and xpath="/html/head/*"  ') + '&format=json';
-                ajax_call_function(yql, format, _site).then(function(data){
+                ajax_call_function(yql, format, _site).then(function(data) {
                     crawl_single_news_page_function(_site, data);
                 });
 
@@ -499,7 +579,7 @@
             var pro = new Promise(function(resolve, reject) {
                 $.ajax({
                     url: yql
-                }).success(function(data,str,xhr) {
+                }).success(function(data, str, xhr) {
                     // if (main_link_page == 1) {
                     if (format == "mainpage") {
                         console.log("mainpage");
@@ -521,7 +601,7 @@
                         //     resolve();
                         // })(_site, data);
 
-                        
+
                         resolve(data);
 
                         // function fir() {
@@ -575,7 +655,54 @@
             // console.log(ajax_call);
 
             // promise_array.push(ajax_call);
-        }
+        };
+
+        var sort_acc_to_date = function() {
+            var n = number_of_news;
+
+            for (var i = 0; i < number_of_news; i++) {
+                var d = new Date(final_time_array[i]);
+                console.log(Number(d));
+            }
+            var c, d;
+            for (c = 0; c < (n - 1); c++) {
+                for (d = 0; d < n - c - 1; d++) {
+                    var first_date = new Date(final_time_array[d]);
+                    first_date = Number(first_date);
+                    var sec_date = new Date(final_time_array[d + 1]);
+                    sec_date = Number(sec_date);
+                    if (first_date < sec_date) /* For decreasing order use < */ {
+                        // console.log(first_date);
+                        // console.log(sec_date);
+                        var swap;
+                        swap = final_time_array[d];
+                        final_time_array[d] = final_time_array[d + 1];
+                        final_time_array[d + 1] = swap;
+
+                        swap = final_titles_array[d];
+                        final_titles_array[d] = final_titles_array[d + 1];
+                        final_titles_array[d + 1] = swap;
+
+                        swap = final_description_array[d];
+                        final_description_array[d] = final_description_array[d + 1];
+                        final_description_array[d + 1] = swap;
+
+                        swap = final_imageHref_array[d];
+                        final_imageHref_array[d] = final_imageHref_array[d + 1];
+                        final_imageHref_array[d + 1] = swap;
+
+                        swap = final_newsHref_array[d];
+                        final_newsHref_array[d] = final_newsHref_array[d + 1];
+                        final_newsHref_array[d + 1] = swap;
+
+                    }
+                }
+            }
+            for (var i = 0; i < number_of_news; i++) {
+                var d = new Date(final_time_array[i]);
+                console.log(Number(d));
+            }
+        };
 
         var bindForm = function() {
 
@@ -585,7 +712,33 @@
             $(head_displayInstance).append(head_display());
 
             setLocalStorageItems();
-            var x = JSON.parse(localStorage.getItem("news"));
+            // var x = JSON.parse(localStorage.getItem("news"));
+            // var x = '   {"count":9,"data":[{"id":1,"url":"https://www.rt.com/rss/","type":"rss"},{"id":2,"url":"http://timesofindia.feedsportal.com/c/33039/f/533917/index.rss","type":"rss"},{"id":3,"url":"http://timesofindia.indiatimes.com/rssfeeds/7098551.cms","type":"rss"},{"id":4,"url":"http://timesofindia.feedsportal.com/c/33039/f/533919/index.rss","type":"rss"},{"id":5,"url":"http://timesofindia.feedsportal.com/c/33039/f/533920/index.rss","type":"rss"},{"id":6,"url":"http://timesofindia.feedsportal.com/c/33039/f/533921/index.rss","type":"rss"},{"id":7,"url":"http://timesofindia.feedsportal.com/c/33039/f/533922/index.rss","type":"rss"},{"id":8,"url":"http://timesofindia.feedsportal.com/c/33039/f/533925/index.rss","type":"rss"},{"id":9,"url":"http://timesofindia.feedsportal.com/c/33039/f/533924/index.rss","type":"rss"}]}';
+            var x = '{"count":1,"data":[{"id":1,"url":"https://www.rt.com/rss/","type":"rss"}]}';
+            // var x = JSON.parse(json_files / input_links.json);
+            x = JSON.parse(x);
+
+
+            // var x;
+            // var oReq = new XMLHttpRequest();
+            // oReq.onload = reqListener;
+            // oReq.open("get", "json_files / input_links.json", true);
+            // oReq.send();
+
+            // function reqListener(e) {
+            //     x = JSON.parse(this.responseText);
+            // }
+
+
+
+
+            // $.getJSON("json_files / input_links.json", function(data) {
+            //     console.log("JSON Data: " + data);
+            //     x = data;
+            // });
+
+
+
             var c = x.count;
 
 
@@ -615,6 +768,7 @@
             Promise.all(promise_array).then(function() {
                 console.log(promise_array);
                 console.log(final_titles_array);
+                sort_acc_to_date();
                 render_function();
             });
 

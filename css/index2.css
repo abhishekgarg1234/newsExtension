@@ -10,7 +10,7 @@
 
 .feeds {
     width: 376px;
-    /*margin: 7px;*/
+    margin: 7px;
 }
 
 .hide {
@@ -30,23 +30,20 @@
     width: 376px;
     height: 43px;
     color: black;
-    margin-bottom: 5px;
     background-color: DarkSalmon;
 }
 
 .head_span {
     font-weight: bold;
-    /*margin-bottom: 5px;*/
-    /*margin: 5px;*/
+    margin: 5px;
     /*padding: 5px;*/
 }
 
 .news_feed_div {
-    height: 120px;
-    width: 376px;
+    height: 54px width: 376px;
     overflow: hidden;
-    /*margin: 4px;*/
-    margin-bottom: 5px;
+    margin: 4px;
+    /*border:solid;*/
 }
 
 .news_feed_anchor_tag {
@@ -54,32 +51,31 @@
 }
 
 .news_feed_description_div {
-    max-height: 52px;
+    max-height: 54px;
     overflow: hidden;
     max-width: 260px;
 }
 
 .news_feed_title_div {
-    max-height: 51px;
+    max-height: 45px;
     max-width: 260px;
-    /*padding-top: 6px;*/
-    padding-bottom: 3px;
+    padding-top: 6px;
+    padding-bottom: 6px;
     background-color: white;
     overflow: hidden;
 }
 
 .news_feed_time_div {
-    /*padding: 3px;*/
+    padding: 3px;
     opacity: 0.6;
 }
 
 .news_feed {
     display: inline-block;
-    height: 120px;
 }
 
 .news_feed_image_div {
     width: 90px;
-    height: 120px;
+    height: 90px;
     padding-right: 3px;
 }
