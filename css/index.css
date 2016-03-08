@@ -51,10 +51,12 @@
 
 .news_feed_anchor_tag {
     color: blue;
+    text-decoration: none;
 }
 
 .news_feed_description_div {
     max-height: 52px;
+    min-height: 50px;
     overflow: hidden;
     max-width: 260px;
 }
@@ -62,6 +64,7 @@
 .news_feed_title_div {
     max-height: 51px;
     max-width: 260px;
+    min-height: 25px;
     /*padding-top: 6px;*/
     padding-bottom: 3px;
     background-color: white;
@@ -82,4 +85,28 @@
     width: 90px;
     height: 120px;
     padding-right: 3px;
+}
+
+.title_div_without_description {
+    height: 71px;
+    max-width: 260px;
+    min-height: 25px;
+    /*padding-top: 6px;*/
+    padding-bottom: 3px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.loading {
+    background: #FFF url(images/loading.gif) no-repeat center center;
+    height: 100px;
+    width: 100px;
+    /*position: fixed;*/
+    /*z-index: 1000;*/
+  /*  left: 50%;
+    top: 50%;
+    margin: -25px 0 0 -25px;*/
+}
+
+
 }
