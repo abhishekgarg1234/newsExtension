@@ -1,5 +1,22 @@
 (function(config, app) {
-    app.set_head_displayId(config.head_displayId);
-    app.set_feedId(config.feedId);
-    app.bindForm();
+    // app.bindForm();
+    function temp() {
+        console.log(arguments.length);
+        if (arguments.length == 0) {
+            app.bindForm().then(function(data) {
+                setTimeout(function() {
+                    temp(1);
+                }, 30000);
+            });
+        } else {
+            app.bindForm(1).then(function(data) {
+                setInterval(temp(1), 30000);
+                console.log("done");
+            });
+
+        }
+
+    };
+    temp();
+
 })(window.config, window.app);
