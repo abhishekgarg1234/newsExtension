@@ -73,6 +73,7 @@
 }
 
 .news_feed_time_div {
+    max-width: 260px;
     /*padding: 3px;*/
     opacity: 0.6;
 }
@@ -109,5 +110,6 @@
     margin: -25px 0 0 -25px;*/
 }
 
-
+.slider_for_new_news {
+    cursor: pointer;
 }

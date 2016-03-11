@@ -296,13 +296,10 @@
             console.log("render_function called");
             var feed_id_instance = document.getElementById(feedId);
             var i = 0;
-
-
             // $(feed_id_instance).html("");
             for (var key in final_titles_array) {
                 console.log(final_priority_array[i]);
                 $(feed_id_instance).append(functions.make_div(final_titles_array[i], final_description_array[i], final_imageHref_array[i], final_newsHref_array[i], final_time_array[i]));
-                // $(feed_id_instance).append(make_div(set_title, set_description, set_image_href, set_news_href, news_feed_time));
                 i++;
             }
         };

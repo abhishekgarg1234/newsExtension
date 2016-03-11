@@ -4,7 +4,6 @@
         var words_to_check_for_news = config.words_to_check;
 
         var check_for_words = function(str) {
-            console.log("che");
             str = str.toLowerCase(str);
             for (var key in words_to_check_for_news) {
                 if (str.indexOf(words_to_check_for_news[key]) != -1) {
@@ -28,11 +27,9 @@
         };
 
         var make_div = function(title, description_of_news, image_href, news_href, news_feed_time) {
-            console.log("aaaa");
 
             var main_div = document.createElement("div");
             main_div.setAttribute("class", "news_feed_div");
-
 
             var left_div = document.createElement("div");
             left_div.setAttribute("class", "news_feed left_div");
@@ -53,7 +50,6 @@
             image_div.appendChild(image);
 
             left_div.appendChild(image_div);
-
 
             var right_div = document.createElement("div");
             right_div.setAttribute("class", "news_feed right_div");
@@ -81,8 +77,6 @@
             // description_div.setAttribute("class", "news_feed_description_div");
             // description_div.innerHTML = description_of_news;
             // console.log(description_of_news);
-
-
 
             if ((description_of_news == "none")) {
                 description_of_news = "";
