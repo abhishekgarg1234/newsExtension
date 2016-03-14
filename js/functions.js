@@ -4,6 +4,7 @@
         var words_to_check_for_news = config.words_to_check;
 
         var check_for_words = function(str) {
+            // console.log(str);
             str = str.toLowerCase(str);
             for (var key in words_to_check_for_news) {
                 if (str.indexOf(words_to_check_for_news[key]) != -1) {
@@ -130,6 +131,7 @@
                     url: url
                 }).done(function(data) {
                     // console.log(url);
+                    // console.log(data);
                     // console.log(data);
                     resolve(data);
                 }).fail(function(err) {
