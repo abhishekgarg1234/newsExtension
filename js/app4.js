@@ -50,8 +50,6 @@
 
         var previous_saved_date;
 
-        var all_promise_done = false;
-
         var make_head_links_array = function(obj) {
             head_links_array = [];
             for (var key in obj) {
@@ -305,6 +303,10 @@
                 final_imageHref_array.push("image/images2.jpg");
             }
 
+            // var d = new Date(news_feed_time);
+            // if (d == "Invalid Date") {
+            //     news_feed_time = convert_to_validDate(news_feed_time);
+            // }
             if ((news_feed_time != null) && (news_feed_time != undefined) && (news_feed_time != "")) {
 
                 final_time_array.push(news_feed_time);
@@ -315,6 +317,7 @@
                     final_time_array.push("Mon Mar 07 2016 11:10:57 GMT+0530 (IST)");
                 }
             }
+
 
             final_priority_array.push(priority);
 
@@ -339,7 +342,7 @@
         var render_function2 = function() {
             var feed_id_instance = document.getElementById(feedId);
             previous_saved_date = final_time_array[0];
-            console.log("render_function2 called");
+            console.log("render_function called");
             var i = 0;
             // $(feed_id_instance).html("");
             for (var key in final_titles_array) {
@@ -347,7 +350,6 @@
                 i++;
             }
         };
-
         var store_data_in_final2 = function() {
             for (var key in final_titles_array) {
                 final_titles_array2.push(final_titles_array[key]);
@@ -376,6 +378,8 @@
             if (end > number_of_news) {
                 end = number_of_news;
             }
+            console.log(start);
+            console.log(end);
             render_part(start, end);
         };
 
@@ -383,14 +387,11 @@
             console.log("render part called");
             var feed_id_instance = document.getElementById(feedId);
             $(feed_id_instance).html("");
-            for (var i = start; i < end; i++) {
-                if (final_imageHref_array2[i] == "meta") {
-                    final_imageHref_array2[i] = "image/images2.jpg";
-                }
+            for (var i = start; i < end; i++)
                 $(feed_id_instance).append(functions.make_div(final_titles_array2[i], final_description_array2[i], final_imageHref_array2[i], final_newsHref_array2[i], final_time_array2[i]));
-            }
             i++;
         };
+
 
         var crawl_function = function(format, site, priority) {
             var _site = site;
@@ -494,13 +495,28 @@
             }
         };
 
+        var crawl_for_imageLink_from_meta = function(link, key) {
+            var yql = functions.prepare_link(link, "single_news");
+            promise_array.push(functions.ajax_call_function(yql).then(function(data) {
+                if (data == "err") {} else {
+                    var img = crawl_single_news_page_function_for_imageOnly(data);
+                    temp_imageHref_array[key] = img;
+                }
+            }))
+        };
+
         var sort_acc_to_priority = function() {
             var n = number_of_news;
             var c, d;
             for (var key in final_priority_array) {}
             for (c = 0; c < (n - 1); c++) {
                 for (d = 0; d < n - c - 1; d++) {
+                    // var first_date = Date.parse(final_time_array[d]);
+                    // first_date = Number(first_date);
                     first_prio = final_priority_array[d];
+
+                    // var sec_date = Date.parse(final_time_array[d + 1]);
+                    // sec_date = Number(sec_date);
                     sec_prio = final_priority_array[d + 1];
 
                     if (first_prio > sec_prio) {
@@ -533,24 +549,6 @@
             }
 
             for (var key in final_priority_array) {}
-        };
-
-        var crawl_for_imageLink_from_meta = function(link, key) {
-            console.log("for image");
-            var yql = functions.prepare_link(link, "single_news");
-            promise_array.push(functions.ajax_call_function(yql).then(function(data) {
-                if (data == "err") {} else {
-                    var img = crawl_single_news_page_function_for_imageOnly(data);
-                    temp_imageHref_array[key] = img;
-
-                    for (var key2 in final_newsHref_array2) {
-                        if (final_newsHref_array2[key2] == link) {
-                            final_imageHref_array2[key2] = img;
-                        }
-                    }
-
-                }
-            }))
         };
 
         var move_from_temp_to_final = function() {
@@ -613,121 +611,94 @@
                     $(".slider_for_new_news").slideUp();
                 } else {
                     console.log(background_working);
-                    console.log(promise_array);
                 }
-
                 Promise.all(promise_array).then(function() {
+
                     promise_array = [];
-                    for (var key in single_news_links_array) {
-                        crawl_function("single_news", single_news_links_array[key], single_news_priority_array[key]);
+                    for (var key in temp_titles_array) {
+                        crawl_for_imageLink_from_meta(temp_newsHref_array[key], key);
                     }
-
                     Promise.all(promise_array).then(function() {
-                        if (background_working == true) {
-                            console.log("aaaa");
-                            // sort_acc_to_date();
-                            var x = Date.parse(final_time_array[0]);
-                            var y = Date.parse(previous_saved_date);
-                            // if (x > y) {
-                            if (1) {
-                                console.log("background_working");
-                                $(feed_id_instance).scrollTop(0);
-                                $(".slider_for_new_news").slideDown();
-                                promise_array = [];
+                        promise_array = [];
+                        for (var key in single_news_links_array) {
+                            crawl_function("single_news", single_news_links_array[key], single_news_priority_array[key]);
+                        }
+                        Promise.all(promise_array).then(function() {
+                            $(feed_id_instance).attr("class", "loaded");
+                            $(feed_id_instance).removeClass("loading");
 
-
-                                $(".slider_for_new_news").on("click", function() {
-                                    console.log("clicked slider");
-                                    $(".slider_for_new_news").slideUp();
-
-                                    click_count = 0;
-                                    maintain_next_prev();
-                                    cleanup_array2();
-
-                                    move_from_temp_to_final();
-                                    change_dates_same_format();
-                                    sort_acc_to_date();
-                                    sort_acc_to_priority();
-                                    store_data_in_final2();
-                                    render_function();
-
-
-                                    for (var key in temp_titles_array) {
-                                        crawl_for_imageLink_from_meta(temp_newsHref_array[key], key);
-                                    }
-
-                                    Promise.all(promise_array).then(function() {
-                                        render_function();
-                                    });
-                                });
-                            }
-                            resolve("final");
-                        } else {
                             move_from_temp_to_final();
                             change_dates_same_format();
                             sort_acc_to_date();
                             sort_acc_to_priority();
 
-                            store_data_in_final2();
-                            $(feed_id_instance).attr("class", "loaded");
-                            $(feed_id_instance).removeClass("loading");
-
-                            render_function();
-                            $("#view_next").removeClass("hide").addClass("show");
-                            maintain_next_prev();
-
-                            $("#view_next").on("click", function() {
-                                $(feed_id_instance).scrollTop(0);
-                                click_count++;
-                                if (click_count <= 0) {
-                                    $("#view_prev").addClass("hide");
-                                    click_count = 0;
-                                } else {
-                                    $("#view_prev").removeClass("hide").addClass("show");
+                            if (background_working == true) {
+                                // sort_acc_to_date();
+                                var x = Date.parse(final_time_array[0]);
+                                var y = Date.parse(previous_saved_date);
+                                if (x > y) {
+                                    // if (1) {
+                                    $(".slider_for_new_news").slideDown();
+                                    $(".slider_for_new_news").on("click", function() {
+                                        $(".slider_for_new_news").slideUp();
+                                        click_count = 0;
+                                        maintain_next_prev();
+                                        cleanup_array2();
+                                        store_data_in_final2();
+                                        render_function();
+                                    });
                                 }
-                                var start = click_count * number_of_news_in_single_page;
-                                var end = start + 10;
-                                if (end > number_of_news) {
-                                    $("#view_next").addClass("hide");
-                                    end = number_of_news;
-                                } else {
-                                    $("#view_next").removeClass("hide");
-                                }
-                                render_part(start, end);
-                                maintain_next_prev();
-                            });
-                            $("#view_prev").on("click", function() {
-                                $(feed_id_instance).scrollTop(0);
-                                click_count--;
-                                if (click_count <= 0) {
-                                    $("#view_prev").addClass("hide");
-                                    click_count = 0;
-                                } else {
-                                    $("#view_prev").removeClass("hide").addClass("show");
-                                }
-                                var start = click_count * number_of_news_in_single_page;
-                                var end = start + 10;
-                                if (end > number_of_news) {
-                                    $("#view_next").addClass("hide");
-                                    end = number_of_news;
-                                } else {
-                                    $("#view_next").removeClass("hide").addClass("show");
-                                }
-                                render_part(start, end);
-                                maintain_next_prev();
-                            });
-                            resolve("final");
-
-                            promise_array = [];
-                            for (var key in temp_titles_array) {
-                                crawl_for_imageLink_from_meta(temp_newsHref_array[key], key);
-                            }
-
-                            Promise.all(promise_array).then(function() {
-                                promise_array = [];
+                                resolve("final");
+                            } else {
+                                store_data_in_final2();
                                 render_function();
-                            });
-                        }
+                                $("#view_next").removeClass("hide").addClass("show");
+                                maintain_next_prev();
+
+                                $("#view_next").on("click", function() {
+                                    click_count++;
+                                    if (click_count <= 0) {
+                                        $("#view_prev").addClass("hide");
+                                        click_count = 0;
+                                    } else {
+                                        console.log("A");
+                                        $("#view_prev").removeClass("hide").addClass("show");
+                                    }
+                                    var start = click_count * number_of_news_in_single_page;
+                                    var end = start + 10;
+                                    if (end > number_of_news) {
+                                        $("#view_next").addClass("hide");
+                                        end = number_of_news;
+                                    } else {
+                                        $("#view_next").removeClass("hide");
+                                    }
+                                    console.log(start);
+                                    console.log(end);
+                                    render_part(start, end);
+                                    maintain_next_prev();
+                                });
+                                $("#view_prev").on("click", function() {
+                                    click_count--;
+                                    if (click_count <= 0) {
+                                        $("#view_prev").addClass("hide");
+                                        click_count = 0;
+                                    } else {
+                                        $("#view_prev").removeClass("hide").addClass("show");
+                                    }
+                                    var start = click_count * number_of_news_in_single_page;
+                                    var end = start + 10;
+                                    if (end > number_of_news) {
+                                        $("#view_next").addClass("hide");
+                                        end = number_of_news;
+                                    } else {
+                                        $("#view_next").removeClass("hide").addClass("show");
+                                    }
+                                    render_part(start, end);
+                                    maintain_next_prev();
+                                });
+                                resolve("final");
+                            }
+                        });
                     });
                 });
             });

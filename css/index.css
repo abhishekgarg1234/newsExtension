@@ -3,19 +3,10 @@
     height: 445px;
     overflow-y: scroll;
     overflow-x: hidden;
-    /*overflow: hidden;*/
-    /*word-break: break-all;*/
-    /*  text-align: justify;
-    text-align-last: left;*/
 }
 
 .feeds {
     width: 376px;
-    /*margin: 7px;*/
-}
-
-.hide {
-    /*display:  none;*/
 }
 
 #cl1 {
@@ -37,16 +28,12 @@
 
 .head_span {
     font-weight: bold;
-    /*margin-bottom: 5px;*/
-    /*margin: 5px;*/
-    /*padding: 5px;*/
 }
 
 .news_feed_div {
     height: 120px;
     width: 376px;
     overflow: hidden;
-    /*margin: 4px;*/
     margin-bottom: 5px;
 }
 
@@ -74,7 +61,6 @@
 
 .news_feed_time_div {
     max-width: 260px;
-    /*padding: 3px;*/
     opacity: 0.6;
 }
 
@@ -93,7 +79,6 @@
     height: 71px;
     max-width: 260px;
     min-height: 25px;
-    /*padding-top: 6px;*/
     padding-bottom: 3px;
     background-color: white;
     overflow: hidden;
@@ -103,13 +88,26 @@
     background: #FFF url(images/loading.gif) no-repeat center center;
     height: 100px;
     width: 100px;
-    /*position: fixed;*/
-    /*z-index: 1000;*/
-    /*  left: 50%;
-    top: 50%;
-    margin: -25px 0 0 -25px;*/
 }
 
 .slider_for_new_news {
     cursor: pointer;
+}
+
+#view_next {
+    float: right;
+    cursor: pointer;
+}
+
+#view_prev {
+    float: left;
+    cursor: pointer;
+}
+
+#bottom {
+    width: 376px;
+}
+
+.fl {
+    display: inline-block;
 }
