@@ -2,8 +2,6 @@
     var functions = (function(document) {
 
         var words_to_check_for_news = config.words_to_check;
-        var city_to_check = config.city;
-        var state_to_check = config.state;
 
         var check_for_words = function(str) {
             // console.log(str);
@@ -23,6 +21,7 @@
             str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
             str = str.replace(/\?/g, "");
             return str;
+
         }
 
         var find_image_href_from_description = function(str) {
@@ -54,21 +53,17 @@
             var image = document.createElement("img");
             // image.setAttribute("src", image_href);
             // image.setAttribute("src", "image/images2.jpg");
-
             if (image_href == "image/images2.jpg") {
-                image.setAttribute("src", "image/images2.jpg");
-                image.setAttribute("data-src", image_href);
+                image.setAttribute("src", image_href);
             } else {
-                image.setAttribute("src", "image/images2.jpg");
-                image.setAttribute("data-src", image_href);
+                image.setAttribute("src", image_href);
             }
-
             image.setAttribute("alt", "Image not available");
             image.setAttribute("onError", "this.src='image/images2.jpg'");
             image.setAttribute("style", "width:90px;height:90px;");
-
             var str = title;
             str = remove_punchuations(str);
+
             main_div.setAttribute("class", str);
 
             image_div.appendChild(image);
@@ -131,9 +126,9 @@
             // main_div.appendChild(time_div);
             main_div.appendChild(left_div);
             main_div.appendChild(right_div);
+
             return main_div;
         };
-
         var change_time_type_fn = function(input_time) {
             //return a string with ago;
             var ans;
@@ -158,6 +153,7 @@
             }
 
             return ans;
+
         };
 
         var prepare_link = function(_site, format) {
@@ -191,165 +187,24 @@
             });
         };
 
+        var get_city_of_news_from_details = function() {
+            return "global";
 
-        var find_city = function(str) {
-            var temp = 0;
-            var ans = false;
-            str = str.toLowerCase();
-            for (var key in city_to_check) {
-                if (str.indexOf(city_to_check[key]) != -1) {
-                    if (temp == 0) {
-                        temp = 1;
-                        ans = [];
-                    }
-                    ans.push(city_to_check[key]);
-                    // ans = city_to_check[key];
-                }
-            }
-
-            return ans;
         };
 
-        var find_state = function(str) {
-            var temp = 0;
-            var ans = false;
-            str = str.toLowerCase();
-            for (var key in state_to_check) {
-                if (str.indexOf(state_to_check[key]) != -1) {
-                    if (temp == 0) {
-                        temp = 1;
-                        ans = [];
-                    }
-                    ans.push(state_to_check[key]);
-                    // ans = state_to_check[key];
-                }
-            }
-
-            return ans;
+        var get_state_of_news_from_details = function() {
+            return "global";
         };
-
-        var get_city_of_news_from_details2 = function(title, description, news_href) {
-
-            var ans = [];
-
-
-            var city_from_title = find_city(title);
-            var city_from_description = find_city(description);
-            // var city_from_image_href = find_city(image_href);
-            var city_from_news_href = find_city(news_href);
-            if (city_from_title) {
-                // console.log(city_from_title);
-                return city_from_title;
-            } else if (city_from_description) {
-                // console.log(city_from_description)
-                return city_from_description;
-            } else if (city_from_news_href) {
-                // console.log(city_from_news_href);
-                return city_from_news_href;
-            } else {
-                return "other";
-            }
-        };
-
-        var get_city_of_news_from_details = function(title, description, news_href) {
-            var ans = [];
-            var city_from_title = find_city(title);
-            var city_from_description = find_city(description);
-            // var city_from_image_href = find_city(image_href);
-            var city_from_news_href = find_city(news_href);
-            if (city_from_title) {
-                // console.log(city_from_title);
-                for (var key in city_from_title) {
-                    if (ans.indexOf(city_from_title) == -1) {
-                        ans.push(city_from_title[key]);
-                    }
-                }
-            }
-            if (city_from_description) {
-                // console.log(city_from_description)
-                for (var key in city_from_description) {
-                    if (ans.indexOf(city_from_description) == -1) {
-                        ans.push(city_from_description[key]);
-                    }
-                }
-            }
-            if (city_from_news_href) {
-                for (var key in city_from_news_href) {
-                    if (ans.indexOf(city_from_news_href[key]) == -1) {
-                        ans.push(city_from_news_href[key]);
-                    }
-                }
-            }
-
-            if (ans.length == 0) {
-                return "other";
-            } else {
-                return ans;
-            }
-        };
-
-        var get_state_of_news_from_details = function(title, description, news_href) {
-            var state_from_title = find_state(title);
-            var state_from_description = find_state(description);
-            // var state_from_image_href = find_state(image_href);
-            var state_from_news_href = find_state(news_href);
-            if (state_from_title) {
-                return state_from_title;
-            } else if (state_from_description) {
-                return state_from_description;
-            } else if (state_from_news_href) {
-                return state_from_news_href;
-            } else {
-                return "global state";
-            }
-        };
-
-
-        var make_data_a_json_object = function(title_array, description_array, imageHref_array, newsHref_array, time_array, priority_array, city_array, state_array) {
-            var jsonData = [];
-            for (var key in title_array) {
-                jsonData.push(make_json_object(title_array[key], description_array[key], imageHref_array[key], newsHref_array[key], time_array[key], priority_array[key], city_array[key], state_array[key]));
-            }
-            return jsonData;
-        };
-
-        var make_json_object = function(title, description, img, newsHref, time, priority, city, state) {
-            var obj = new Object();
-            obj.title = title;
-            obj.description = description;
-            obj.imageHref = img;
-            obj.newsHref = newsHref;
-            obj.time = time;
-            obj.priority = priority;
-            obj.city = city;
-            obj.state = state;
-            // obj.newsHref = newsHref;
-            return obj;
-        };
-
-
-        var make_city_dropdown = function(arr) {
-
-
-        }
-
-
-        var make_city_check = function(arr) {
-
-        }
 
         return {
             check_for_words: check_for_words,
             find_image_href_from_description: find_image_href_from_description,
             make_div: make_div,
-            make_city_dropdown: make_city_dropdown,
             prepare_link: prepare_link,
             ajax_call_function: ajax_call_function,
             remove_punchuations: remove_punchuations,
             get_city_of_news_from_details: get_city_of_news_from_details,
-            get_state_of_news_from_details: get_state_of_news_from_details,
-            make_data_a_json_object: make_data_a_json_object,
-            make_json_object: make_json_object
+            get_state_of_news_from_details: get_state_of_news_from_details
         };
 
     })(window.document);

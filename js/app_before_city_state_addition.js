@@ -3,15 +3,17 @@
 
         var head_displayId = config.head_displayId,
             feedId = config.feedId;
+        // view_nextId = config.view_next,
+        // view_prevId = config.view_next;
         var background_working = false;
         var data_present_in_localStorage = false;
         var number_of_news = 0;
+        //data from configs
 
         var input_data = config.input_data2,
             words_to_check_for_news = config.words_to_check,
             max_news_per_site = config.max_news_per_site,
-            number_of_news_in_single_page = config.number_of_news_in_single_page,
-            cities_list = config.city;
+            number_of_news_in_single_page = config.number_of_news_in_single_page;
 
         var head_links_array = [],
             head_metaTags_array = [],
@@ -22,36 +24,28 @@
             final_newsHref_array = [],
             final_imageHref_array = [],
             final_time_array = [],
-            final_priority_array = [],
-            final_city_array = [],
-            final_state_array = [];
+            final_priority_array = [];
 
         var final_titles_array2 = [],
             final_description_array2 = [],
             final_newsHref_array2 = [],
             final_imageHref_array2 = [],
             final_time_array2 = [],
-            final_priority_array2 = [],
-            final_city_array2 = [],
-            final_state_array2 = [];
+            final_priority_array2 = [];
 
         var temp_titles_array = [],
             temp_description_array = [],
             temp_newsHref_array = [],
             temp_imageHref_array = [],
             temp_time_array = [],
-            temp_priority_array = [],
-            temp_city_array = [],
-            temp_state_array = [];
+            temp_priority_array = [];
 
         var new_news_titles_array = [],
             new_news_description_array = [],
             new_news_newsHref_array = [],
             new_news_imageHref_array = [],
             new_news_time_array = [],
-            new_news_priority_array = [],
-            new_news_city_array = [],
-            new_news_state_array = [];
+            new_news_priority_array = [];
 
         var prev_date = null,
             number_of_news = 0;
@@ -72,7 +66,7 @@
             }
         };
 
-        var update_already_present_news = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, city, state) {
+        var update_already_present_news = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority) {
 
             // for (var key in final_newsHref_array2) {
             //     if (final_newsHref_array2[key] == set_news_href) {
@@ -100,8 +94,6 @@
                     final_newsHref_array2.splice(key, 1);
                     final_time_array2.splice(key, 1);
                     final_priority_array2.splice(key, 1);
-                    final_city_array2.splice(key, 1);
-                    final_state_array2.splice(key, 1);
 
                     // var class_name = functions.remove_punchuations(set_title);
                     // $("." + class_name).find("img").attr("src", set_image_href);
@@ -114,6 +106,7 @@
                     $("." + class_name).remove();
                 }
             }
+
         };
 
         var make_head_metaTags_array = function(obj) {
@@ -309,8 +302,10 @@
                     var set_image_href;
                     if (data.query.results.item[i].image) {
                         set_image_href = data.query.results.item[i].image.src;
+                        // console.log(data.query.results.item[i].image.src);
                     } else {
                         set_image_href = "image/images2.jpg";
+                        // set_image_href = find_image_href_from_description(set_description);
 
                     }
                     var html2 = /(<([^>]+)>)/gi;
@@ -318,34 +313,41 @@
                     var set_news_href = data.query.results.item[i].link;
                     var news_feed_time = data.query.results.item[i].pubDate;
 
-                    var set_news_city = functions.get_city_of_news_from_details(set_title, set_description, set_news_href);
-                    var set_news_state = functions.get_state_of_news_from_details(set_title, set_description, set_news_href);
+                    // var set_news_city = get_city_of_news_from_details();
 
                     if ((background_working == true) || (data_present_in_localStorage == true)) {
                         var x = Date.parse(news_feed_time);
                         var y = Date.parse(previous_saved_date);
                         if (x > y) {
+
                             no_of_new_news++;
+                            // var cc = new Date(x);
+                            console.log(news_feed_time);
                             news_feed_time = news_feed_time.toString();
+                            // news_feed_time = cc;
+                            console.log(news_feed_time);
                             if ((final_titles_array2.indexOf(set_title) != -1) || (final_newsHref_array2.indexOf(set_image_href) != -1)) {
-                                update_already_present_news(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
+                                update_already_present_news(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority);
+                                // return;
                             }
-                            push_in_new_news_array(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
+
+                            push_in_new_news_array(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority);
                         }
+
                     } else {
                         if (set_image_href == "image/images2.jpg") {
-                            push_news_data_temp(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
+                            push_news_data_temp(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority);
                         } else {
-                            push_news_data(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
+                            push_news_data(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority);
                         }
                     }
                 }
             }
         };
 
-        var push_news_data = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_city, set_state) {
+        var push_news_data = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority) {
 
-            // console.log("pushed data");
+            console.log("pushed data");
             if ((final_titles_array.indexOf(set_title) != -1) || (final_newsHref_array.indexOf(set_news_href) != -1)) {
                 return;
             }
@@ -388,9 +390,6 @@
                 }
             }
 
-            final_city_array.push(set_city);
-            final_state_array.push(set_state);
-
             var x = Date.parse(news_feed_time);
 
             var y = Date.parse(previous_saved_date);
@@ -401,11 +400,10 @@
             final_priority_array.push(priority);
 
             prev_date = news_feed_time;
-            // console.log(number_of_news);
             number_of_news++;
         };
 
-        var push_news_data_temp = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, city, state) {
+        var push_news_data_temp = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority) {
 
             if ((temp_titles_array.indexOf(set_title) != -1)) {
                 return;
@@ -424,13 +422,11 @@
             temp_newsHref_array.push(set_news_href);
             temp_time_array.push(news_feed_time);
             temp_priority_array.push(priority);
-            temp_city_array.push(city);
-            temp_state_array.push(state);
-            // console.log(" push_news_data_temp" + number_of_news);
+
             number_of_news++;
         };
 
-        var push_in_new_news_array = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, city, state) {
+        var push_in_new_news_array = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority) {
             if ((new_news_titles_array.indexOf(set_title) != -1)) {
                 return;
             }
@@ -447,8 +443,6 @@
             new_news_newsHref_array.push(set_news_href);
             new_news_time_array.push(news_feed_time);
             new_news_priority_array.push(priority);
-            new_news_city_array.push(city);
-            new_news_state_array.push(state);
         };
 
         var store_data_in_final2 = function() {
@@ -459,13 +453,6 @@
                 final_imageHref_array2.push(final_imageHref_array[key]);
                 final_description_array2.push(final_description_array[key]);
                 final_newsHref_array2.push(final_newsHref_array[key]);
-                final_city_array2.push(final_city_array[key]);
-                final_state_array2.push(final_state_array[key]);
-
-                if (final_city_array[key] != "other") {
-                    // console.log(final_city_array[key]);
-                    // console.log(final_titles_array[key]);
-                }
             }
         };
 
@@ -476,8 +463,6 @@
             final_imageHref_array2 = [];
             final_description_array2 = [];
             final_newsHref_array2 = [];
-            final_city_array2 = [];
-            final_state_array2 = [];
         };
 
         var cleanup_new_news_array = function() {
@@ -487,18 +472,12 @@
             new_news_newsHref_array = [];
             new_news_time_array = [];
             new_news_priority_array = [];
-            new_news_city_array = [];
-            new_news_state_array = [];
         };
 
-        var render_function2 = function() {
-
-
-
-
+        var render_function = function() {
             var feed_id_instance = document.getElementById(feedId);
             // previous_saved_date = final_time_array2[0];
-            // console.log("render_function called");
+            console.log("render_function called");
             var i = 0;
             $(feed_id_instance).html("");
             for (var key in final_titles_array2) {
@@ -511,36 +490,19 @@
             }
         };
 
-        var render_function = function() {
-            console.log("render function called");
-            var city_arr = JSON.parse(localStorage.getItem("cities"));
+        var render_function2 = function(obj) {
             var feed_id_instance = document.getElementById(feedId);
-            var i = 0;
+            previous_saved_date = final_time_array2[0];
+            console.log("render_function2 called");
             $(feed_id_instance).html("");
-            for (var key in final_titles_array2) {
-                if (check_match(city_arr, final_city_array2[key])) {
-                    if (final_imageHref_array2[i] == "meta") {
-                        final_imageHref_array2[i] = "image/images2.jpg";
-                    }
-                    $(feed_id_instance).append(functions.make_div(final_titles_array2[i], final_description_array2[i], final_imageHref_array2[i], final_newsHref_array2[i], final_time_array2[i]));
+
+            for (var key in obj) {
+                console.log(obj[key].imageHref);
+                if (obj[key].imageHref == "meta") {
+                    obj[key].imageHref = "image/images2.jpg";
                 }
-                i++;
+                $(feed_id_instance).append(functions.make_div(obj[key].title, obj[key].description, obj[key].imageHref, obj[key].newsHref, obj[key].time));
             }
-        };
-        var check_match = function(city_arr1, final_arr) {
-            var ans = 0;
-            // city_arr1 = JSON.parse(city_arr1);
-            if (final_arr == "other") {
-                final_arr = ["other"];
-            }
-            for (var key in final_arr) {
-                for (var key1 in city_arr1) {
-                    if (city_arr1[key1] == final_arr[key]) {
-                        ans = 1;
-                    }
-                }
-            }
-            return ans;
         };
 
         var crawl_function = function(format, site, priority) {
@@ -586,7 +548,10 @@
             var n = number_of_news;
             for (i = 0; i < n; i++) {
                 var d = new Date(final_time_array[i]);
+
+                console.log(d);
                 final_time_array[i] = d.toString();
+                console.log(final_time_array[i]);
             }
         };
 
@@ -626,14 +591,6 @@
                         swap = final_priority_array[d];
                         final_priority_array[d] = final_priority_array[d + 1];
                         final_priority_array[d + 1] = swap;
-
-                        swap = final_city_array[d];
-                        final_city_array[d] = final_city_array[d + 1];
-                        final_city_array[d + 1] = swap;
-
-                        swap = final_state_array[d];
-                        final_state_array[d] = final_state_array[d + 1];
-                        final_state_array[d + 1] = swap;
                     }
                 }
             }
@@ -672,14 +629,6 @@
                         swap = final_priority_array[d];
                         final_priority_array[d] = final_priority_array[d + 1];
                         final_priority_array[d + 1] = swap;
-
-                        swap = final_city_array[d];
-                        final_city_array[d] = final_city_array[d + 1];
-                        final_city_array[d + 1] = swap;
-
-                        swap = final_state_array[d];
-                        final_state_array[d] = final_state_array[d + 1];
-                        final_state_array[d + 1] = swap;
                     }
                 }
             }
@@ -723,14 +672,6 @@
                         swap = new_news_priority_array[d];
                         new_news_priority_array[d] = new_news_priority_array[d + 1];
                         new_news_priority_array[d + 1] = swap;
-
-                        swap = new_news_city_array[d];
-                        new_news_city_array[d] = new_news_city_array[d + 1];
-                        new_news_city_array[d + 1] = swap;
-
-                        swap = new_news_state_array[d];
-                        new_news_state_array[d] = new_news_state_array[d + 1];
-                        new_news_state_array[d + 1] = swap;
                     }
                 }
             }
@@ -769,14 +710,6 @@
                         swap = new_news_priority_array[d];
                         new_news_priority_array[d] = new_news_priority_array[d + 1];
                         new_news_priority_array[d + 1] = swap;
-
-                        swap = new_news_city_array[d];
-                        new_news_city_array[d] = new_news_priority_array[d + 1];
-                        new_news_city_array[d + 1] = swap;
-
-                        swap = new_news_state_array[d];
-                        new_news_state_array[d] = new_news_state_array[d + 1];
-                        new_news_state_array[d + 1] = swap;
                     }
                 }
             }
@@ -808,8 +741,7 @@
                             // console.log(img);
                             // console.log("a"+$("." + str).children()[0].childNodes[0].childNodes.attr("src"));
                             // $("." + str).find("img").("src", img);
-                            $("." + str).find("img").attr("data-src", img);
-                            $("img").unveil();
+                            $("." + str).find("img").attr("src", img);
 
                             // $("." + str).children()[0].childNodes[0].childNodes.attr("src", img);
                         }
@@ -819,7 +751,6 @@
         };
 
         var move_from_temp_to_final = function() {
-            // console.log(temp_city_array);
             for (var key in temp_titles_array) {
                 if (final_titles_array.indexOf(temp_titles_array[key]) != -1) {
                     continue;
@@ -830,8 +761,6 @@
                 final_imageHref_array.push(temp_imageHref_array[key]);
                 final_description_array.push(temp_description_array[key]);
                 final_newsHref_array.push(temp_newsHref_array[key]);
-                final_city_array.push(temp_city_array[key]);
-                final_state_array.push(temp_state_array[key]);
             }
         };
 
@@ -849,37 +778,71 @@
                 final_imageHref_array2.unshift(new_news_imageHref_array[key]);
                 final_description_array2.unshift(new_news_description_array[key]);
                 final_newsHref_array2.unshift(new_news_newsHref_array[key]);
-                final_city_array2.unshift(new_news_city_array[key]);
-                final_state_array2.unshift(new_news_state_array[key]);
             }
             // console.log(final_titles_array2);
         };
 
-        var initialBind = function() {
-            // var t = new Date();
+        var make_data_a_json_object = function(title_array, description_array, imageHref_array, newsHref_array, time_array, priority_array) {
+            var jsonData = [];
+            for (var key in title_array) {
+                jsonData.push(make_json_object(title_array[key], description_array[key], imageHref_array[key], newsHref_array[key], time_array[key], priority_array[key]));
+            }
+            return jsonData;
+        };
 
+        var make_json_object = function(title, description, img, newsHref, time, priority) {
+            var obj = new Object();
+            obj.title = title;
+            obj.description = description;
+            obj.imageHref = img;
+            obj.newsHref = newsHref;
+            obj.time = time;
+            obj.priority = priority;
+            // obj.newsHref = newsHref;
+            return obj;
+        };
+
+        var initialBind = function() {
+            var t = new Date();
+            console.log("initial bind " + Number(t));
+            // console.log(chrome.storage.local.get('data1'));
+            // chrome.storage.local.get('data1', function(result) {
+            //     var t = new Date();
+            //     console.log("got data at " + Number(t));
+            //     // console.log(result.data1);
+            //     data_present_in_localStorage = true;
+            //     var d = JSON.parse(result.data1);
+            //     initial_render(d);
+
+            //     make_final_array2_from_local(JSON.parse(local_data));
+
+            // });
+
+
+            console.log("initial bind fn");
             if (typeof(Storage) !== "undefined") {
                 var local_data = localStorage.getItem("data1");
-                // var t = new Date();
-                // console.log("got data at " + Number(t));
+                var t = new Date();
+                console.log("got data at " + Number(t));
                 if (local_data) {
                     if (local_data == "") {
-                        // resolve;
                         return;
                     }
                     data_present_in_localStorage = true;
                     var d = JSON.parse(local_data);
-                    make_final_array2_from_local(JSON.parse(local_data));
-                    // render_function();
                     initial_render(d);
+
+                    make_final_array2_from_local(JSON.parse(local_data));
                 }
-            } else {}
+            } else {
+                // document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
+            }
         };
 
         var initial_render = function(obj) {
-            var city_arr = JSON.parse(localStorage.getItem("cities"));
-            // console.log(final_city_array2);
-            // var t = new Date();
+            var t = new Date();
+            console.log("initial render" + Number(t));
+            console.log("initial render");
             var feed_id_instance = document.getElementById(feedId);
             // console.log(obj[0]);
             $(feed_id_instance).html("");
@@ -887,27 +850,25 @@
             var i = 0;
 
             var x = Date.parse(obj[0].time);
+            // console.log(Number(x));
+
+            console.log("x " + Date.parse(obj[0].time));
             previous_saved_date = obj[0].time;
 
             for (var key in obj) {
                 var y = Date.parse(obj[i].time);
+                // var y = obj[i].time;
                 if (y > x) {
                     previous_saved_date = obj[i].time;
                     x = Date.parse(obj[i].time);
                 } else {}
-                if (check_match(city_arr, obj[i].city)) {
 
-                    $(feed_id_instance).append(functions.make_div(obj[i].title, obj[i].description, obj[i].imageHref, obj[i].newsHref, obj[i].time));
-                }
+                $(feed_id_instance).append(functions.make_div(obj[i].title, obj[i].description, obj[i].imageHref, obj[i].newsHref, obj[i].time));
                 i++;
             }
-            // var t = new Date();
-            // console.log("render complete" + Number(t));
-            console.log("previous_saved_date: " + (Number(new Date(previous_saved_date))));
-            $("img").unveil();
-            $(feed_id_instance).scroll(function() {
-                $("img").unveil();
-            });
+            var t = new Date();
+            console.log("render complete" + Number(t));
+            console.log(previous_saved_date);
         };
 
         var make_final_array2_from_local = function(obj) {
@@ -919,178 +880,12 @@
                 final_newsHref_array2[key] = obj[key].newsHref;
                 final_time_array2[key] = obj[key].time;
                 final_priority_array2[key] = obj[key].priority;
-                final_city_array2[key] = obj[key].city;
-                final_state_array2[key] = obj[key].state;
             }
             // console.log(final_titles_array2);
         };
 
-        var make_checkbox_form2 = function() {
-            console.log("inside");
-            var checked_items = cities_list;
-            var from_local = JSON.parse(localStorage.getItem("cities"));
-            var form = document.createElement("form");
-            form.setAttribute("class", "form_submit");
-            var main_div = document.createElement("div");
-            for (var key in checked_items) {
-                console.log(checked_items[key]);
-                var label = document.createElement("label");
-                label.innerHTML = checked_items[key];
-                var y = document.createElement("div");
-                var x = document.createElement("input");
-                x.setAttribute("type", "checkbox");
-
-                if (from_local.indexOf(checked_items[key]) != -1) {
-                    x.setAttribute("checked", true);
-                } else {}
-                y.appendChild(x);
-                y.appendChild(label);
-
-                main_div.appendChild(y);
-            }
-            form.appendChild(main_div);
-            var button = document.createElement("button");
-            button.appendChild(document.createTextNode("Done"));
-            button.setAttribute("class", "done");
-            form.appendChild(button);
-            return form;
-        };
-
-        var make_checkbox_form = function() {
-            var checked_items = cities_list;
-            var from_local = JSON.parse(localStorage.getItem("cities"));
-            var form = document.createElement("form");
-            form.setAttribute("id", "form_city");
-
-            for (var key in checked_items) {
-                var x = document.createElement("input");
-                x.setAttribute("class", "checkbox_class");
-                x.setAttribute("type", "checkbox");
-                x.setAttribute("name", "cities_list");
-                x.setAttribute("value", checked_items[key]);
-                if (from_local.indexOf(checked_items[key]) != -1) {
-                    x.setAttribute("checked", "checked");
-                } else {}
-
-                var label = document.createElement("label");
-                label.setAttribute("for", "cities_list");
-                label.innerHTML = capitalise_string(checked_items[key]);
-                label.appendChild(document.createElement("br"));
-
-                form.appendChild(x);
-                form.appendChild(label);
-                form.appendChild(document.createElement("br"));
-            }
-
-
-            var span = document.createElement("span");
-            span.appendChild(document.createTextNode("Select All"));
-            span.setAttribute("style", "font-weight: bold");
-            span.setAttribute("class", "select_all");
-            form.appendChild(span);
-
-            var span = document.createElement("span");
-            span.appendChild(document.createTextNode("Done"));
-            span.setAttribute("style", "font-weight: bold");
-            span.setAttribute("class", "done");
-            form.appendChild(span);
-            return form;
-        };
-
-        var capitalise_string = function(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
-        };
-
-        var change_city_in_local = function() {
-            var arr = [];
-            $('#form_city').find(':input').each(function() {
-                // console.log($(this).attr("checked"));
-                if ($(this).attr("checked") == undefined) {
-
-                } else {
-                    arr.push($(this).attr("value"));
-                }
-            })
-            localStorage.setItem("cities", JSON.stringify(arr));
-        };
-
-        var select_all_tick = function() {
-            // var arr = [];
-            $('#form_city').find(':input').each(function() {
-                    // console.log($(this).attr("checked"));
-                    if ($(this).attr("checked") == undefined) {
-                        $(this).attr("checked", true);
-
-                    } else {
-                        // arr.push($(this).attr("value"));
-                    }
-                })
-                // localStorage.setItem("cities", JSON.stringify(arr));
-        };
-
-        var event_bind = function() {
-            var feed_id_instance = document.getElementById(feedId);
-
-            $("img").unveil();
-            $(feed_id_instance).scroll(function() {
-                $("img").unveil();
-            });
-
-
-            $("#change_city").on("click", function(e) {
-                $(feed_id_instance).scrollTop(0);
-                $(feed_id_instance).html("");
-
-                var div = document.createElement("div");
-                div.setAttribute("class", "select_city");
-                var span = document.createElement("span");
-                span.setAttribute("style", "font-size: larger;");
-                span.appendChild(document.createTextNode("Select city"));
-
-                div.appendChild(span);
-                // $(feed_id_instance).append(document.createElement("br"));
-                // $(feed_id_instance).append(document.createElement("br"));
-                $(feed_id_instance).append(div);;
-                // $(feed_id_instance).append(document.createElement("br"));
-                // $(feed_id_instance).append(document.createElement("br"));
-                $(feed_id_instance).append(make_checkbox_form());
-                $("#change_city").hide();
-                $(".checkbox_class").on("change", function(event) {
-
-                    // console.log(event.target.attributes.getNamedItem("checked"));
-                    if (event.target.attributes.getNamedItem("checked")) {
-
-                        // if (event.target.attributes.getNamedItem("checked").value == "true") {
-                        // console.log("a");
-                        $(this).removeAttr("checked");
-                    } else {
-                        // console.log("s");
-                        $(this).attr("checked", true);
-                    }
-                });
-                $(".done").on("click", function(event) {
-                    $(feed_id_instance).scrollTop(0);
-                    $("#change_city").show();
-                    console.log("done clicked");
-                    change_city_in_local();
-                    render_function();
-                });
-
-                $(".select_all").on("click", function(event) {
-                    select_all_tick();
-
-                });
-            });
-        };
-
         var bindForm = function() {
-            // initialBind();
-            if (localStorage.getItem("cities")) {
-                console.log("cities local storage already present");
-            } else {
-                console.log(cities_list);
-                localStorage.setItem("cities", JSON.stringify(cities_list));
-            }
+            console.log("bind called" + Number(new Date()));
 
             no_of_new_news = 0;
             if (arguments.length > 0) {
@@ -1106,20 +901,15 @@
                 single_news_links_array = [];
                 single_news_priority_array = [];
                 console.log("got arguments");
-            } else {
-                if (data_present_in_localStorage == false) {
-                    $("#change_city").hide();
-                }
-                event_bind();
-            }
+            } else {}
 
             return new Promise(function(resolve, reject) {
 
                 var head_displayInstance = document.getElementById(head_displayId);
                 var feed_id_instance = document.getElementById(feedId);
 
-                var len = input_data.data.length;
-                for (var i = 0; i < len; i++) {
+                var c = input_data.data.length;
+                for (var i = 0; i < c; i++) {
                     if (input_data.data[i].type == "mainpage") {
                         crawl_function("mainpage", input_data.data[i].url, input_data.data[i].priority);
                     } else if (input_data.data[i].type == "rss") {
@@ -1130,31 +920,23 @@
                 }
                 if (background_working == false) {
                     if (data_present_in_localStorage == false) {
-                        // console.log("loading");
                         $(feed_id_instance).addClass("loading");
                     }
 
-                    $(".slider_for_new_news").hide();
+                    $(".slider_for_new_news").slideUp();
                 } else {
                     console.log(background_working);
                     console.log(promise_array);
                 }
 
                 Promise.all(promise_array).then(function() {
-
-
-
-
-                    $("img").unveil();
-                    $(feed_id_instance).scroll(function() {
-                        $("img").unveil();
-                    });
-
-
+                    // console.log(promise_array);
                     promise_array = [];
+
                     for (var key in single_news_links_array) {
                         crawl_function("single_news", single_news_links_array[key], single_news_priority_array[key]);
                     }
+
                     Promise.all(promise_array).then(function() {
                         // console.log(background_working);
                         if ((background_working == true) || (data_present_in_localStorage == true)) {
@@ -1173,13 +955,17 @@
                                 // sort_new_news_acc_to_priority();
                                 sort_new_news_acc_to_date();
 
+
                                 for (var key in new_news_titles_array) {
+                                    // if(previous_saved_date)
                                     $(feed_id_instance).prepend(functions.make_div(new_news_titles_array[key], new_news_description_array[key], new_news_imageHref_array[key], new_news_newsHref_array[key], new_news_time_array[key]));
+                                    // }
+                                    // for (var key in new_news_titles_array) {
                                     crawl_for_imageLink_from_meta(new_news_newsHref_array[key], key);
                                 }
 
                                 Promise.all(promise_array).then(function() {
-                                    var x = functions.make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2, final_city_array2, final_state_array2)
+                                    var x = make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2)
                                     x = JSON.stringify(x);
                                     cleanup_new_news_array();
                                     localStorage.setItem("data1", x);
@@ -1196,32 +982,38 @@
                                 resolve("final");
                             }
                         } else {
-                            // console.log(temp_city_array);
                             move_from_temp_to_final();
                             change_dates_same_format();
                             sort_acc_to_priority();
                             sort_acc_to_date();
                             store_data_in_final2();
-
                             $(feed_id_instance).attr("class", "loaded");
                             $(feed_id_instance).removeClass("loading");
 
                             render_function();
-                            // resolve("final");
+                            resolve("final");
 
                             promise_array = [];
                             for (var key in temp_titles_array) {
                                 crawl_for_imageLink_from_meta(temp_newsHref_array[key], key);
                             }
                             Promise.all(promise_array).then(function() {
-                                console.log("done");
-                                $("#change_city").show();
-                                var x = functions.make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2, final_city_array2, final_state_array2);
+                                var x = make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2)
                                 x = JSON.stringify(x);
                                 localStorage.setItem("data1", x);
+                                console.log("Aaa");
+
+                                // chrome.storage.local.set({ 'data1': x });
+                                // chrome.storage.sync.set({ "data1": x }, function() {
+                                //     if (chrome.runtime.error) {
+                                //         console.log("Runtime error.");
+                                //     } else {
+                                //         console.log("saved");
+                                //     }
+                                // });
+
                                 promise_array = [];
                                 resolve("final");
-                                event_bind();
                             });
                         }
                     });

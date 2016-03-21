@@ -23,11 +23,16 @@
     height: 43px;
     color: black;
     margin-bottom: 5px;
-    background-color: DarkSalmon;
+    /*margin-bottom: 5px;*/
+    background-color: #863C3C;
 }
 
 .head_span {
-    font-weight: bold;
+    color: white;
+    font: normal 16px/21px 'Arial', sans-serif;
+    /*font-weight: bold;*/
+    font-size: x-large;
+    margin-left: 110px;
 }
 
 .news_feed_div {
@@ -91,6 +96,9 @@
 }
 
 .slider_for_new_news {
+    width: 376px;
+    height: 43px;
+    background-color: #6495ED;
     cursor: pointer;
 }
 
@@ -110,4 +118,44 @@
 
 .fl {
     display: inline-block;
+}
+
+#bottom_display {
+    width: 376px;
+    height: 43px;
+    background-color: DarkSalmon;
+}
+
+.done {
+    cursor: pointer;
+    border: 2px solid black;
+    float: right;
+    margin-right: 25px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-left: 3px;
+    background-color: #863C3C;
+}
+
+.select_all {
+    cursor: pointer;
+    border: 2px solid black;
+    /*float: right;*/
+    /*margin-right: 25px;*/
+    padding-bottom: 2px;
+    padding-top: 2px;
+    padding-right: 3px;
+    padding-left: 3px;
+    background-color: #863C3C;
+}
+
+#change_city {
+    margin-right: 6px;
+    margin-top: 6px;
+    cursor: pointer;
+}
+
+.select_city {
+    height: 30px;
 }
