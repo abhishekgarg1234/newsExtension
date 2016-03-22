@@ -65,8 +65,13 @@
 }
 
 .news_feed_time_div {
+    text-align: right;
     max-width: 260px;
     opacity: 0.6;
+}
+
+.time_span_class {
+    /*float:right;*/
 }
 
 .news_feed {
@@ -98,7 +103,7 @@
 .slider_for_new_news {
     width: 376px;
     height: 43px;
-    background-color: #6495ED;
+    background-color: #863C3C;
     cursor: pointer;
 }
 
@@ -136,6 +141,7 @@
     padding-right: 3px;
     padding-left: 3px;
     background-color: #863C3C;
+    color: #DCD5D5;
 }
 
 .select_all {
@@ -148,6 +154,7 @@
     padding-right: 3px;
     padding-left: 3px;
     background-color: #863C3C;
+    color: #DCD5D5;
 }
 
 #change_city {
@@ -158,4 +165,11 @@
 
 .select_city {
     height: 30px;
+}
+
+.checkbox_labels {
+    cursor: pointer;
+    display: inline-block;
+    width: 150px;
+    padding-left: 3px;
 }

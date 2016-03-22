@@ -4,6 +4,7 @@
         var head_displayId = config.head_displayId,
             feedId = config.feedId;
         var background_working = false;
+        var settings_page_open = false;
         var data_present_in_localStorage = false;
         var number_of_news = 0;
 
@@ -73,24 +74,7 @@
         };
 
         var update_already_present_news = function(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, city, state) {
-
-            // for (var key in final_newsHref_array2) {
-            //     if (final_newsHref_array2[key] == set_news_href) {
-            //         final_titles_array2[key] = set_title;
-            //         final_description_array2[key] = set_description;
-            //         final_imageHref_array2[key] = set_image_href;
-            //         final_newsHref_array2[key] = set_news_href;
-            //         final_time_array2[key] = news_feed_time;
-            //         final_priority_array2[key] = priority;
-
-            //         var class_name = functions.remove_punchuations(set_title);
-            //         $("." + class_name).find("img").attr("src", set_image_href);
-            //         $("." + class_name).find(".news_feed_description_div").val(set_description);
-            //         $("." + class_name).find(".news_feed_title_div").val(set_title);
-            //         $("." + class_name).find(".news_feed_time_div").find("span").val(news_feed_time);
-
-            //     }
-            // }
+            console.log("News Updated");
             for (var key in final_newsHref_array2) {
                 if (final_newsHref_array2[key] == set_news_href) {
                     final_newsHref_array2.splice(key, 1);
@@ -102,15 +86,8 @@
                     final_priority_array2.splice(key, 1);
                     final_city_array2.splice(key, 1);
                     final_state_array2.splice(key, 1);
-
-                    // var class_name = functions.remove_punchuations(set_title);
-                    // $("." + class_name).find("img").attr("src", set_image_href);
-                    // $("." + class_name).find(".news_feed_description_div").val(set_description);
-                    // $("." + class_name).find(".news_feed_title_div").val(set_title);
-                    // $("." + class_name).find(".news_feed_time_div").find("span").val(news_feed_time);
-
                     var class_name = functions.remove_punchuations(final_titles_array2[key]);
-
+                    console.log(class_name);
                     $("." + class_name).remove();
                 }
             }
@@ -301,43 +278,40 @@
             }
             for (var i = 0; i < data.query.results.item.length && i <= max_news_per_site; i++) {
                 var temp = data.query.results.item[i].title.toLowerCase();
-                // if (functions.check_for_words(temp)) {
-                if (1) {
-                    var set_title = data.query.results.item[i].title;
-                    var set_description = data.query.results.item[i].description;
+                var set_title = data.query.results.item[i].title;
+                var set_description = data.query.results.item[i].description;
 
-                    var set_image_href;
-                    if (data.query.results.item[i].image) {
-                        set_image_href = data.query.results.item[i].image.src;
-                    } else {
-                        set_image_href = "image/images2.jpg";
+                var set_image_href;
+                if (data.query.results.item[i].image) {
+                    set_image_href = data.query.results.item[i].image.src;
+                } else {
+                    set_image_href = "image/images2.jpg";
 
+                }
+                var html2 = /(<([^>]+)>)/gi;
+                set_description = set_description.replace(html2, '');
+                var set_news_href = data.query.results.item[i].link;
+                var news_feed_time = data.query.results.item[i].pubDate;
+
+                var set_news_city = functions.get_city_of_news_from_details(set_title, set_description, set_news_href);
+                var set_news_state = functions.get_state_of_news_from_details(set_title, set_description, set_news_href);
+
+                if ((background_working == true) || (data_present_in_localStorage == true)) {
+                    var x = Date.parse(news_feed_time);
+                    var y = Date.parse(previous_saved_date);
+                    if (x > y) {
+                        no_of_new_news++;
+                        news_feed_time = news_feed_time.toString();
+                        if ((final_titles_array2.indexOf(set_title) != -1) || (final_newsHref_array2.indexOf(set_news_href) != -1)) {
+                            update_already_present_news(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
+                        }
+                        push_in_new_news_array(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
                     }
-                    var html2 = /(<([^>]+)>)/gi;
-                    set_description = set_description.replace(html2, '');
-                    var set_news_href = data.query.results.item[i].link;
-                    var news_feed_time = data.query.results.item[i].pubDate;
-
-                    var set_news_city = functions.get_city_of_news_from_details(set_title, set_description, set_news_href);
-                    var set_news_state = functions.get_state_of_news_from_details(set_title, set_description, set_news_href);
-
-                    if ((background_working == true) || (data_present_in_localStorage == true)) {
-                        var x = Date.parse(news_feed_time);
-                        var y = Date.parse(previous_saved_date);
-                        if (x > y) {
-                            no_of_new_news++;
-                            news_feed_time = news_feed_time.toString();
-                            if ((final_titles_array2.indexOf(set_title) != -1) || (final_newsHref_array2.indexOf(set_image_href) != -1)) {
-                                update_already_present_news(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
-                            }
-                            push_in_new_news_array(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
-                        }
+                } else {
+                    if (set_image_href == "image/images2.jpg") {
+                        push_news_data_temp(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
                     } else {
-                        if (set_image_href == "image/images2.jpg") {
-                            push_news_data_temp(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
-                        } else {
-                            push_news_data(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
-                        }
+                        push_news_data(set_title, set_description, set_image_href, set_news_href, news_feed_time, priority, set_news_city, set_news_state);
                     }
                 }
             }
@@ -401,7 +375,6 @@
             final_priority_array.push(priority);
 
             prev_date = news_feed_time;
-            // console.log(number_of_news);
             number_of_news++;
         };
 
@@ -461,11 +434,6 @@
                 final_newsHref_array2.push(final_newsHref_array[key]);
                 final_city_array2.push(final_city_array[key]);
                 final_state_array2.push(final_state_array[key]);
-
-                if (final_city_array[key] != "other") {
-                    // console.log(final_city_array[key]);
-                    // console.log(final_titles_array[key]);
-                }
             }
         };
 
@@ -491,26 +459,6 @@
             new_news_state_array = [];
         };
 
-        var render_function2 = function() {
-
-
-
-
-            var feed_id_instance = document.getElementById(feedId);
-            // previous_saved_date = final_time_array2[0];
-            // console.log("render_function called");
-            var i = 0;
-            $(feed_id_instance).html("");
-            for (var key in final_titles_array2) {
-                // console.log(final_imageHref_array2[i]);
-                if (final_imageHref_array2[i] == "meta") {
-                    final_imageHref_array2[i] = "image/images2.jpg";
-                }
-                $(feed_id_instance).append(functions.make_div(final_titles_array2[i], final_description_array2[i], final_imageHref_array2[i], final_newsHref_array2[i], final_time_array2[i]));
-                i++;
-            }
-        };
-
         var render_function = function() {
             console.log("render function called");
             var city_arr = JSON.parse(localStorage.getItem("cities"));
@@ -518,7 +466,7 @@
             var i = 0;
             $(feed_id_instance).html("");
             for (var key in final_titles_array2) {
-                if (check_match(city_arr, final_city_array2[key])) {
+                if (check_match_two_arrays(city_arr, final_city_array2[key])) {
                     if (final_imageHref_array2[i] == "meta") {
                         final_imageHref_array2[i] = "image/images2.jpg";
                     }
@@ -526,10 +474,10 @@
                 }
                 i++;
             }
+            $("img").unveil();
         };
-        var check_match = function(city_arr1, final_arr) {
+        var check_match_two_arrays = function(city_arr1, final_arr) {
             var ans = 0;
-            // city_arr1 = JSON.parse(city_arr1);
             if (final_arr == "other") {
                 final_arr = ["other"];
             }
@@ -564,9 +512,7 @@
         var temp_crawl = function(format, _site, priority) {
             var yql = functions.prepare_link(_site, format);
             promise_array.push(functions.ajax_call_function(yql).then(function(data) {
-                // console.log("got response");
                 if (data == "err") {} else {
-                    // console.log("a");
                     after_ajax_call_function(format, _site, data, priority);
                 }
             }))
@@ -783,7 +729,6 @@
         };
 
         var crawl_for_imageLink_from_meta = function(link, key) {
-            // console.log("for image");
             var yql = functions.prepare_link(link, "single_news");
             promise_array.push(functions.ajax_call_function(yql).then(function(data) {
                 if (data == "err") {} else {
@@ -792,26 +737,11 @@
 
                     for (var key2 in final_newsHref_array2) {
                         if (final_newsHref_array2[key2] == link) {
-                            // console.log(img);
-                            // console.log(img);
                             final_imageHref_array2[key2] = img;
-
                             var str = final_titles_array2[key2];
                             str = functions.remove_punchuations(str);
-                            // str = str.replace(/\s+/g, '');
-                            // str = str.replace(/\'/g, "");
-                            // str = str.replace(/\"/g, "");
-                            // str = str.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-                            // str = str.replace(/\?/g, "");
-                            // console.log($("." + str).children()[0].childNodes[0].childNodes);
-                            // console.log($("." + str).find("img").attr("src"));
-                            // console.log(img);
-                            // console.log("a"+$("." + str).children()[0].childNodes[0].childNodes.attr("src"));
-                            // $("." + str).find("img").("src", img);
                             $("." + str).find("img").attr("data-src", img);
                             $("img").unveil();
-
-                            // $("." + str).children()[0].childNodes[0].childNodes.attr("src", img);
                         }
                     }
                 }
@@ -819,7 +749,6 @@
         };
 
         var move_from_temp_to_final = function() {
-            // console.log(temp_city_array);
             for (var key in temp_titles_array) {
                 if (final_titles_array.indexOf(temp_titles_array[key]) != -1) {
                     continue;
@@ -852,40 +781,29 @@
                 final_city_array2.unshift(new_news_city_array[key]);
                 final_state_array2.unshift(new_news_state_array[key]);
             }
-            // console.log(final_titles_array2);
         };
 
         var initialBind = function() {
-            // var t = new Date();
-
             if (typeof(Storage) !== "undefined") {
                 var local_data = localStorage.getItem("data1");
-                // var t = new Date();
-                // console.log("got data at " + Number(t));
                 if (local_data) {
                     if (local_data == "") {
-                        // resolve;
                         return;
                     }
                     data_present_in_localStorage = true;
-                    var d = JSON.parse(local_data);
-                    make_final_array2_from_local(JSON.parse(local_data));
-                    // render_function();
-                    initial_render(d);
+                    var parsed_data = JSON.parse(local_data);
+                    make_final_array2_from_local(parsed_data);
+                    initial_render(parsed_data);
                 }
             } else {}
         };
 
         var initial_render = function(obj) {
             var city_arr = JSON.parse(localStorage.getItem("cities"));
-            // console.log(final_city_array2);
-            // var t = new Date();
             var feed_id_instance = document.getElementById(feedId);
-            // console.log(obj[0]);
             $(feed_id_instance).html("");
             $(feed_id_instance).attr("class", "loaded");
             var i = 0;
-
             var x = Date.parse(obj[0].time);
             previous_saved_date = obj[0].time;
 
@@ -895,15 +813,34 @@
                     previous_saved_date = obj[i].time;
                     x = Date.parse(obj[i].time);
                 } else {}
-                if (check_match(city_arr, obj[i].city)) {
+                if (check_match_two_arrays(city_arr, obj[i].city)) {
 
                     $(feed_id_instance).append(functions.make_div(obj[i].title, obj[i].description, obj[i].imageHref, obj[i].newsHref, obj[i].time));
                 }
                 i++;
             }
-            // var t = new Date();
-            // console.log("render complete" + Number(t));
-            console.log("previous_saved_date: " + (Number(new Date(previous_saved_date))));
+            $("img").unveil();
+            $(feed_id_instance).scroll(function() {
+                $("img").unveil();
+            });
+        };
+
+
+        var render_function = function() {
+            console.log("render function called");
+            var city_arr = JSON.parse(localStorage.getItem("cities"));
+            var feed_id_instance = document.getElementById(feedId);
+            var i = 0;
+            $(feed_id_instance).html("");
+            for (var key in final_titles_array2) {
+                if (check_match_two_arrays(city_arr, final_city_array2[key])) {
+                    if (final_imageHref_array2[i] == "meta") {
+                        final_imageHref_array2[i] = "image/images2.jpg";
+                    }
+                    $(feed_id_instance).append(functions.make_div(final_titles_array2[i], final_description_array2[i], final_imageHref_array2[i], final_newsHref_array2[i], final_time_array2[i]));
+                }
+                i++;
+            }
             $("img").unveil();
             $(feed_id_instance).scroll(function() {
                 $("img").unveil();
@@ -911,7 +848,6 @@
         };
 
         var make_final_array2_from_local = function(obj) {
-            // console.log(obj);
             for (var key in obj) {
                 final_titles_array2[key] = obj[key].title;
                 final_description_array2[key] = obj[key].description;
@@ -922,38 +858,6 @@
                 final_city_array2[key] = obj[key].city;
                 final_state_array2[key] = obj[key].state;
             }
-            // console.log(final_titles_array2);
-        };
-
-        var make_checkbox_form2 = function() {
-            console.log("inside");
-            var checked_items = cities_list;
-            var from_local = JSON.parse(localStorage.getItem("cities"));
-            var form = document.createElement("form");
-            form.setAttribute("class", "form_submit");
-            var main_div = document.createElement("div");
-            for (var key in checked_items) {
-                console.log(checked_items[key]);
-                var label = document.createElement("label");
-                label.innerHTML = checked_items[key];
-                var y = document.createElement("div");
-                var x = document.createElement("input");
-                x.setAttribute("type", "checkbox");
-
-                if (from_local.indexOf(checked_items[key]) != -1) {
-                    x.setAttribute("checked", true);
-                } else {}
-                y.appendChild(x);
-                y.appendChild(label);
-
-                main_div.appendChild(y);
-            }
-            form.appendChild(main_div);
-            var button = document.createElement("button");
-            button.appendChild(document.createTextNode("Done"));
-            button.setAttribute("class", "done");
-            form.appendChild(button);
-            return form;
         };
 
         var make_checkbox_form = function() {
@@ -962,9 +866,36 @@
             var form = document.createElement("form");
             form.setAttribute("id", "form_city");
 
+
+            var x = document.createElement("input");
+            x.setAttribute("class", "select_all_class");
+            x.setAttribute("id", "select_all_id");
+            x.setAttribute("type", "checkbox");
+            x.setAttribute("name", "select_all");
+            x.setAttribute("value", "select_all");
+
+            x.setAttribute("checked", "checked");
+            for (var key in checked_items) {
+                if (from_local.indexOf(checked_items[key]) != -1) {} else {
+                    x.removeAttr("checked");
+                    break;
+                }
+            }
+
+            var label = document.createElement("label");
+            label.setAttribute("for", "select_all_id");
+            label.setAttribute("class", "checkbox_labels");
+            label.innerHTML = "All";
+
+            form.appendChild(x);
+            form.appendChild(label);
+
+            var i = 2;
+
             for (var key in checked_items) {
                 var x = document.createElement("input");
                 x.setAttribute("class", "checkbox_class");
+                x.setAttribute("id", checked_items[key]);
                 x.setAttribute("type", "checkbox");
                 x.setAttribute("name", "cities_list");
                 x.setAttribute("value", checked_items[key]);
@@ -973,21 +904,20 @@
                 } else {}
 
                 var label = document.createElement("label");
-                label.setAttribute("for", "cities_list");
+                label.setAttribute("for", checked_items[key]);
+                label.setAttribute("class", "checkbox_labels");
                 label.innerHTML = capitalise_string(checked_items[key]);
-                label.appendChild(document.createElement("br"));
 
                 form.appendChild(x);
                 form.appendChild(label);
-                form.appendChild(document.createElement("br"));
+                if (((i % 2) == 0)) {
+                    form.appendChild(document.createElement("br"));
+                    form.appendChild(document.createElement("br"));
+                }
+                i++;
             }
 
-
-            var span = document.createElement("span");
-            span.appendChild(document.createTextNode("Select All"));
-            span.setAttribute("style", "font-weight: bold");
-            span.setAttribute("class", "select_all");
-            form.appendChild(span);
+            form.appendChild(document.createElement("br"));
 
             var span = document.createElement("span");
             span.appendChild(document.createTextNode("Done"));
@@ -1004,40 +934,22 @@
         var change_city_in_local = function() {
             var arr = [];
             $('#form_city').find(':input').each(function() {
-                // console.log($(this).attr("checked"));
-                if ($(this).attr("checked") == undefined) {
-
-                } else {
+                if ($(this).attr("checked") == undefined) {} else {
                     arr.push($(this).attr("value"));
                 }
             })
             localStorage.setItem("cities", JSON.stringify(arr));
         };
 
-        var select_all_tick = function() {
-            // var arr = [];
-            $('#form_city').find(':input').each(function() {
-                    // console.log($(this).attr("checked"));
-                    if ($(this).attr("checked") == undefined) {
-                        $(this).attr("checked", true);
-
-                    } else {
-                        // arr.push($(this).attr("value"));
-                    }
-                })
-                // localStorage.setItem("cities", JSON.stringify(arr));
-        };
-
         var event_bind = function() {
             var feed_id_instance = document.getElementById(feedId);
-
             $("img").unveil();
             $(feed_id_instance).scroll(function() {
                 $("img").unveil();
             });
 
-
             $("#change_city").on("click", function(e) {
+                settings_page_open = true;
                 $(feed_id_instance).scrollTop(0);
                 $(feed_id_instance).html("");
 
@@ -1048,27 +960,19 @@
                 span.appendChild(document.createTextNode("Select city"));
 
                 div.appendChild(span);
-                // $(feed_id_instance).append(document.createElement("br"));
-                // $(feed_id_instance).append(document.createElement("br"));
                 $(feed_id_instance).append(div);;
-                // $(feed_id_instance).append(document.createElement("br"));
-                // $(feed_id_instance).append(document.createElement("br"));
                 $(feed_id_instance).append(make_checkbox_form());
                 $("#change_city").hide();
                 $(".checkbox_class").on("change", function(event) {
-
-                    // console.log(event.target.attributes.getNamedItem("checked"));
                     if (event.target.attributes.getNamedItem("checked")) {
-
-                        // if (event.target.attributes.getNamedItem("checked").value == "true") {
-                        // console.log("a");
+                        $("#select_all_id").removeAttr("checked");
                         $(this).removeAttr("checked");
                     } else {
-                        // console.log("s");
                         $(this).attr("checked", true);
                     }
                 });
                 $(".done").on("click", function(event) {
+                    settings_page_open = false;
                     $(feed_id_instance).scrollTop(0);
                     $("#change_city").show();
                     console.log("done clicked");
@@ -1076,15 +980,25 @@
                     render_function();
                 });
 
-                $(".select_all").on("click", function(event) {
-                    select_all_tick();
-
+                $('#select_all_id').click(function(event) {
+                    if (this.checked) {
+                        console.log("if");
+                        $('.checkbox_class').each(function() {
+                            this.checked = true;
+                            $(this).attr("checked", "checked");
+                        });
+                    } else {
+                        console.log("else");
+                        $('.checkbox_class').each(function() {
+                            this.checked = false;
+                            $(this).removeAttr("checked");
+                        });
+                    }
                 });
             });
         };
 
         var bindForm = function() {
-            // initialBind();
             if (localStorage.getItem("cities")) {
                 console.log("cities local storage already present");
             } else {
@@ -1130,10 +1044,8 @@
                 }
                 if (background_working == false) {
                     if (data_present_in_localStorage == false) {
-                        // console.log("loading");
                         $(feed_id_instance).addClass("loading");
                     }
-
                     $(".slider_for_new_news").hide();
                 } else {
                     console.log(background_working);
@@ -1141,51 +1053,49 @@
                 }
 
                 Promise.all(promise_array).then(function() {
-
-
-
-
                     $("img").unveil();
                     $(feed_id_instance).scroll(function() {
                         $("img").unveil();
                     });
-
 
                     promise_array = [];
                     for (var key in single_news_links_array) {
                         crawl_function("single_news", single_news_links_array[key], single_news_priority_array[key]);
                     }
                     Promise.all(promise_array).then(function() {
-                        // console.log(background_working);
                         if ((background_working == true) || (data_present_in_localStorage == true)) {
 
                             console.log("no_of_new_news: " + no_of_new_news);
                             if (no_of_new_news > 0) {
-                                // if (1) {
                                 previous_saved_date = new_news_time_array[0];
-
                                 console.log("background_working");
-                                if ($(feed_id_instance).scrollTop() != 0) {
-                                    $(".slider_for_new_news").slideDown();
+                                if (settings_page_open == false) {
+                                    var city_arr = JSON.parse(localStorage.getItem("cities"));
+                                    if (check_match_two_arrays(city_arr, new_news_city_array[key])) {
+                                        $(".slider_for_new_news").slideDown();
+                                    }
                                 }
                                 promise_array = [];
                                 move_from_tempo_to_final();
-                                // sort_new_news_acc_to_priority();
                                 sort_new_news_acc_to_date();
 
                                 for (var key in new_news_titles_array) {
-                                    $(feed_id_instance).prepend(functions.make_div(new_news_titles_array[key], new_news_description_array[key], new_news_imageHref_array[key], new_news_newsHref_array[key], new_news_time_array[key]));
+                                    if (settings_page_open == true) {} else {
+                                        var city_arr = JSON.parse(localStorage.getItem("cities"));
+                                        if (check_match_two_arrays(city_arr, new_news_city_array[key])) {
+                                            $(feed_id_instance).prepend(functions.make_div(new_news_titles_array[key], new_news_description_array[key], new_news_imageHref_array[key], new_news_newsHref_array[key], new_news_time_array[key]));
+                                        }
+                                    }
                                     crawl_for_imageLink_from_meta(new_news_newsHref_array[key], key);
                                 }
 
                                 Promise.all(promise_array).then(function() {
-                                    var x = functions.make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2, final_city_array2, final_state_array2)
-                                    x = JSON.stringify(x);
+                                    var data = JSON.stringify(functions.make_data_a_json_object(final_titles_array2, final_description_array2, final_imageHref_array2, final_newsHref_array2, final_time_array2, final_priority_array2, final_city_array2, final_state_array2));
                                     cleanup_new_news_array();
-                                    localStorage.setItem("data1", x);
-                                    console.log("local storage changed");
+                                    localStorage.setItem("data1", data);
                                     promise_array = [];
                                     resolve("final");
+                                    console.log("local storage changed");
                                 });
 
                                 $(".slider_for_new_news").on("click", function() {
@@ -1205,10 +1115,7 @@
 
                             $(feed_id_instance).attr("class", "loaded");
                             $(feed_id_instance).removeClass("loading");
-
                             render_function();
-                            // resolve("final");
-
                             promise_array = [];
                             for (var key in temp_titles_array) {
                                 crawl_for_imageLink_from_meta(temp_newsHref_array[key], key);

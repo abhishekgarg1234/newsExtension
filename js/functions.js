@@ -113,9 +113,11 @@
             var time_div = document.createElement("div");
             time_div.setAttribute("class", "news_feed_time_div");
             var time_span = document.createElement("span");
+            time_span.setAttribute("class", "time_span_class");
             var changed_time_type = change_time_type_fn(news_feed_time);
             var text = document.createTextNode(changed_time_type);
             time_span.appendChild(text);
+
             time_div.appendChild(time_span);
 
             right_div.appendChild(title_div);
@@ -143,7 +145,7 @@
             var diff = d - d2;
             diff = parseInt((diff / 1000) / 60);
             if (diff < 60) {
-                ans = diff + " min ago";
+                ans = diff + " minutes ago";
             } else if (diff >= 60 && diff < 1440) {
                 var min = diff % 60;
                 diff = parseInt(diff / 60);
